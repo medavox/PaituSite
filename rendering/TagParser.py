@@ -34,14 +34,49 @@ for cwd, dirs, files in os.walk('../mdfiles'):
 								tagDict[tag] = [f]
 			openfile.close()
 
+def getTitle(filename):
+	openMd = open(filename, 'r')
+	#contents = openMd.read()
+	contents = openMd.readline() + openMd.readline() #get first two lines as a str; basically head -n 2
+	#print contents
+	pat = re.compile('^(.+)\n===+$', re.M)
+	suche = pat.search(contents)
+	#print suche
+	if not suche == None:
+		return suche.group(1)
+	else:
+		return ""
+	#print pat.search().group(1)
+
 #generate navbar links to tag pages, as an add-in snippet
 tagEntries = open('./tagEntries.html', 'w')
 for tag in tagDict.keys():
-	print tag
+	#print tag
 	#consider sorting tags before printing
 	linkUrl = ""+tag+'.html'
 	tagEntries.write('\n\t\t\t\t\t<li class=\"pure-menu-item\">\n\t\t\t\t\t\t<a href=\"'+linkUrl+
 		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
+	tagPage = open('../temp/'+tag+'.md', 'w')
+	tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
+	for page in tagDict[tag]:
+		link = page.lower().replace(' ', '_')[:-3]+".html"
+		title = getTitle("../mdfiles/"+page)
+		if title == "":			#if the article text contains no discernible title, use the file name
+			title = page[:-3]
+		tagPage.write("* ["+title+"]("+link+")\n")
+		#pass
+		print tag+":"
+		print "\t"+title
+		print "\t"+link
+	tagPage.close()
+	
 tagEntries.close()
 
-#generate the markdown for pages containing a list of 
+
+
+#getTitle('../mdfiles/Chat bot project.md')
+#generate the markdown for tag pages
+
+#[This is an example inline link](http://www.duckduckgo.com "Example Title")
+#the link label should be the page title,
+#or failing that, the file name

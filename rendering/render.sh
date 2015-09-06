@@ -9,6 +9,9 @@ for f in *?(\ )*; do
 	dift=$(diff -qN "$f" ../lastinput/${g,,})
 	if [ -n "$dift" ]; then # if working copy in ../mdfiles/ differs from last rendered version in ../lastinput/
 		#echo $f HAS CHANGED!
+		if [ ! -d ../temp ] ; then # make sure temp directory exists
+			mkdir ../temp
+		fi
 		echo copying $f to ../temp/${g,,} #make the name lowercase as well
 		cp "$f" ../temp/"${g,,}" # copy changed files to ../temp/ for rendering, in the next loop
 		#cat "$f" | egrep -v ^%tags\{0,1\}:.*$ >> ../temp/"${g,,}"
@@ -23,6 +26,9 @@ for x in $(ls ../temp) ; do
 	echo title is "$title"
 	#head -n 3 mdfiles/ | egrep ^[a-zA-Z0-9 .,?!]{2,}$^=\{3,\}$ | grep -v ^=\{3,\}
 	#head -n 2  | grep -v "^=\{3,\}"
+	if [ ! -d ../html ] ; then	# make sure html output directory exists
+		mkdir ../html
+	fi
 	cat "../temp/$x" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -M title="$title" -B ../rendering/tagEntries.html\
 		-c ../styles/style.css -c ../styles/side-menu.css --template=../rendering/template.html -s\
 		-r markdown+pipe_tables -w html -o ../html/${x%md}html
