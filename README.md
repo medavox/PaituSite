@@ -39,4 +39,3 @@ Longer Term:
 	- code
 	- rants
 	- navelgazing
-	- 
