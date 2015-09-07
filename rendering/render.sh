@@ -4,6 +4,7 @@
 
 shopt -s extglob ##enable better bash regex support, ie for the ?(pattern) below
 cd ../mdfiles
+fileChanged=false
 for f in *?(\ )*; do
 	g="${f// /_}" # replace spaces with underscores in filenames
 	dift=$(diff -qN "$f" ../lastinput/${g,,})
@@ -12,11 +13,15 @@ for f in *?(\ )*; do
 		if [ ! -d ../temp ] ; then # make sure temp directory exists
 			mkdir ../temp
 		fi
+		fileChanged=true
 		echo copying $f to ../temp/${g,,} #make the name lowercase as well
 		cp "$f" ../temp/"${g,,}" # copy changed files to ../temp/ for rendering, in the next loop
 		#cat "$f" | egrep -v ^%tags\{0,1\}:.*$ >> ../temp/"${g,,}"
 	fi
 done
+if $fileChanged ; then #if any files have changed, regenerate the tags and sidemenu
+	./TagParser.py
+fi
 
 #render updated files in ../temp/ to html
 for x in $(ls ../temp) ; do

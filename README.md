@@ -24,11 +24,8 @@ Longer Term:
 ------------
 * We'll need a syntax highlighter
 * what to put in sidebar?
-	- Programming
-	- Food
-	- Hardware/DIY Projects
-	- Rants
-	- About/Links
+	- Tag List
+	- About/Links (to my github, SO etc)
 	- Other Blogs
 * list of tags:
 	- projects
@@ -39,3 +36,14 @@ Longer Term:
 	- code
 	- rants
 	- navelgazing
+	- etc
+
+todo
+----
+* Syntax Highlighting source code files, making them like in Dokuwiki
+	- Downloadable
+	- annotatable with prose on the html page, which is 'outside' the source code file
+		* CoolProgram.java and CooolProgram.md equivalent-named annotation file?
+* Date page written, and/or date last updated
+* Clickable list of tags this page has
+* Multiple Author support?
