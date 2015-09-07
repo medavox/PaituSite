@@ -42,5 +42,8 @@ for x in $(ls ../temp) ; do
 	#cat ../rendering/header.html > ../html/${x%md}html
 	#cat "../temp/$x" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -c ../styles/style.css --toc -r markdown+pipe_tables -w html >> ../html/${x%md}html
 	#cat ../rendering/footer.html >> ../html/${x%md}html
+	if [ ! -d ../lastinput ] ; then
+		mkdir ../lastinput
+	fi
 	mv ../temp/$x ../lastinput/$x
 done
