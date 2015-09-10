@@ -37,11 +37,11 @@ for x in $(ls ../temp) ; do
 	
 	if [ -n "$title" ] ; then #if there's an in-document title, delete it from appearing the the document body
 		tail -n +3 "../temp/$x" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -M title="$title" -B ../rendering/tagEntries.html\
-		-c ../styles/style.css -c ../styles/side-menu.css --template=../rendering/template.html -s\
+		-c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s\
 		-r markdown+pipe_tables -w html -o ../html/${x%md}html
 	else
 		cat "../temp/$x" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -M title="$title" -B ../rendering/tagEntries.html\
-		-c ../styles/style.css -c ../styles/side-menu.css --template=../rendering/template.html -s\
+		-c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s\
 		-r markdown+pipe_tables -w html -o ../html/${x%md}html
 	fi
 	#cat ../rendering/header.html > ../html/${x%md}html

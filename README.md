@@ -2,7 +2,8 @@ A modern Homespun Personal Site on the Paitu
 ============================================
 
 The idea is to have a bunch of markdown files in some (hidden?) dir, then have them rendered to a static site
-the site should have a menu, be responsive, and be as lightweight and performant as possible
+
+The site should have a menu, be responsive, and be as lightweight and performant as possible
 
 Posts will be:-
 
@@ -47,3 +48,4 @@ todo
 * Date page written, and/or date last updated
 * Clickable list of tags this page has
 * Multiple Author support?
+* able to link between different pages on blog
