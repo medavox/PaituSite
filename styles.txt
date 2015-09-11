@@ -1,0 +1,6 @@
+friendly
+monokai
+vs
+native
+tango
+default

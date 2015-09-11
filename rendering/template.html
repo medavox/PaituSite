@@ -10,7 +10,7 @@ $endfor$
 $if(date-meta)$
   <meta name="date" content="$date-meta$" />
 $endif$
-    <title>Medavox.com</title>
+    <title>$if(title)$$title$ - $endif$Medavox.com</title>
 	<style type="text/css">code{white-space: pre;}</style>
 $if(quotes)$
 	<style type="text/css">q { quotes: "“" "”" "‘" "’"; }</style>
@@ -55,8 +55,6 @@ $endif$
 			$if(title)$
 				<h1>$title$</h1>
 			$endif$
-			
-			<!-- <h2>Simple CSS for HTML forms.</h2> -->
 			
 			</div>
 			<div class="content">
