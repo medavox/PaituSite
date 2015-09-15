@@ -2,32 +2,25 @@
 
 import re, os
 """
+
+TODO:
+-----
 link ext [[url|text]] -> [text](url)
-link int [[pagename|Link text]]
+
 link int [[pagename]]
 anchor internal link [[pagename#anchor|this Section]].
 
-unordered list "  * <text>" -> "* <text>"
 ordered list   "  - <text>" -> "<num>. <text>" or "#. <text>" (ext: fancy_lists)
-
-footnote = "((footnote text))" -> "^[<inline footnote>]" (ext: inline_notes)
-
-codeblock "<code><text></code>" -> "```\n<text>\n```", or "`<inline code>`"
-codeblock languaged "<code <lang>><text></code>" -> "```<lang>\n<text>\n```"
-
 italic "//<italictext>//" -> "*<emph>*" or "_<emph>_"
-bold "**<boldtext>**" 	-> "**<strong>**" or "__<strong>__"
 bold+italic "//**<boldtalic>**//" 	-> "***<strong>***" or "___<strong>___"
-strikeout "<del><struck></del>" -> ~~<struck>~~" (ext: strikeout)
-monospace "''<mono>''" -> "`<mono>`"
+italic+bold "**//<boldtalic>//**" 	-> "***<strong>***" or "___<strong>___"
 
-superscript "<super><text></super>" -> "^<text>^"
-subscript "<sub><text></sub>" -> "~<text>~"
-
-identical (or do not need changing) markers
-
+identical (or do not need changing) markers:
+-------------------------------------------
 blockquote (seems to be the same)
 horizontal rule "-{4,}" - > "-{3,}" (so it's basically fine)
+bold "**<boldtext>**" 	-> "**<strong>**" or "__<strong>__"
+unordered list "  * <text>" -> "* <text>"(dokuwiki lists are just-about-valid markdown lists)
 
 Dokuwiki:
 
@@ -45,15 +38,21 @@ row 1 col 1		| row 1 col 2		| row 1 col 3
 row 2 col 1		| colspan??		| row 1 col 3
 row 3 col 1		| row 3 col 2		| row 3 col 3
 
-h1 "====== <text> ======" -> "# <text>"
-h2 "===== <text> =====" -> "## <text>"
-h3 "==== <text> ====" -> "### <text>"
-h4 "=== <text> ===" -> "#### <text>"
-h5 "== <text> ==" -> "##### <text>"
-
-
 downloadable code blocks "<file <lang> <filename>> <sourcecode> </file>" -> ???
 tag "{{tag><taglist>}} -> "%tag:<taglist>
+
+DONE:
+-----
+Headings (h1 - h5)
+footnote = "((footnote text))" -> "^[<inline footnote>]" (ext: inline_notes)
+superscript "<super><text></super>" -> "^<text>^"
+subscript "<sub><text></sub>" -> "~<text>~"
+strikeout "<del><struck></del>" -> ~~<struck>~~" (ext: strikeout)
+codeblock "<code><text></code>" -> "```\n<text>\n```", or "`<inline code>`"
+codeblock languaged "<code <lang>><text></code>" -> "```<lang>\n<text>\n```"
+monospace "''<mono>''" -> "`<mono>`"
+indented monospace
+link int [[pagename|Link text]]
 """
 
 conversionRules = \
