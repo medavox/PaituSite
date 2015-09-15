@@ -56,28 +56,28 @@ downloadable code blocks "<file <lang> <filename>> <sourcecode> </file>" -> ???
 tag "{{tag><taglist>}} -> "%tag:<taglist>
 """
 
-print "egress"
+#print "egress"
 
 conversionRules = \
-[("^====== ?([\s\S]+) ?======$","# \1\n\n"),	#headings
-("^===== ?([\s\S]+) ?=====$","## \1\n\n"),
-("^==== ?([\s\S]+) ?====$","### \1\n\n"),
-("^=== ?([\s\S]+) ?===$","#### \1\n\n"),
-("^== ?([\s\S]+) ?==$","##### \1\n\n"),
-("\(\(([\S\s]+)\)\)", "\^\[\1\]"),				#footnotes
-("<sub>([\s\S]+)</sub>","~\1~"),				#subscript
-("<super>([\s\S]+)</super>","~\1~"),			#superscript
-("<del>([\s\S]+)</del>","~~\1~~"),				#strikeout
-("<code( [a-zA-Z]+)?>([\s\S]+)</code>","\n```\1\n\2\n```\n"),#codeblock with optional language attribute
-("''([\S\s]+)''","`\1`"),						#monospace/inline code
-("^  ([\S\s]+)$","\n    \1\n"),					#indented monospace/inline code
-("//([\s\S]+)//","*\1*"),						#italic
-("\[\[(http://[a-zA-Z-_./?&=0-9]+)\|([A-Za-z0-9 ]+)\]\]","[\2](\1)"),						#italic
+[(r"^====== ?([\s\S]+) ?======$", r"# \1\n\n"),	#headings
+(r"^===== ?([\s\S]+) ?=====$",r"## \1\n\n"),
+(r"^==== ?([\s\S]+) ?====$",r"### \1\n\n"),
+(r"^=== ?([\s\S]+) ?===$",r"#### \1\n\n"),
+(r"^== ?([\s\S]+) ?==$",r"##### \1\n\n"),
+(r"\(\(([\S\s]+)\)\)", r"\^\[\1\]"),				#footnotes
+(r"<sub>([\s\S]+)</sub>",r"~\1~"),				#subscript
+(r"<super>([\s\S]+)</super>",r"~\1~"),			#superscript
+(r"<del>([\s\S]+)</del>",r"~~\1~~"),				#strikeout
+(r"<code( [a-zA-Z]+)?>([\s\S]+)</code>",r"\n```\1\n\2\n```\n"),#codeblock with optional language attribute
+(r"''([\S\s]+)''",r"`\1`"),						#monospace/inline code
+(r"^  ([\S\s]+)$",r"\n    \1\n"),					#indented monospace/inline code
+(r"//([\s\S]+)//",r"*\1*"),						#italic
+(r"\[\[(http://[a-zA-Z-_./?&=0-9]+)\|([A-Za-z0-9 ]+)\]\]",r"[\2](\1)"),	#link
 #("**([\s\S]+)*","**\1**"),						#bold is the same: **<bold>**
-("{{tag>([a-zA-Z ,]+)}}","%tags:\1")]			#tag list
+(r"{{tag>([a-zA-Z ,]+)}}",r"%tags:\1")]			#tag list
 
 
-print "Lol"
+#print "Lol"
 
 for cwd, dirs, files in os.walk('../pages'):
 	for f in files:
@@ -85,13 +85,16 @@ for cwd, dirs, files in os.walk('../pages'):
 			print("converting "+f)
 			#fyl = open(os.path.join(cwd,f), 'r')
 			fyl = open("../pages/almondmilk.txt", 'r')
-			pageString = fyl.read()
-			fyl.close()
-			for rule in conversionRules:
-				print rule
-				pat = re.compile(rule[0])
-				pageString = pat.sub(rule[1], pageString)
-				print pageString
+			#pageString = fyl.read()
 			converted = open(os.path.join("../converted", f[:-3]+"md"), 'w')
-			converted.write(pageString)
+			converted.close()#blank the extant file
+			for line in fyl.readlines():
+				for rule in conversionRules:
+					#print rule
+					pat = re.compile(rule[0])
+					pageString = re.sub(pat, rule[1], line)
+					#print pageString
+				converted = open(os.path.join("../converted", f[:-3]+"md"), 'a')
+				converted.write(pageString)
 			converted.close()
+			fyl.close()
