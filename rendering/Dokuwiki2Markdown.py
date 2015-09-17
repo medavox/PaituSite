@@ -38,7 +38,7 @@ bold "**<boldtext>**" 	-> "**<strong>**" or "__<strong>__"
 unordered list "  * <text>" -> "* <text>"(dokuwiki lists are just-about-valid markdown lists)
 """
 
-conversionRules = \
+convOrig = \
 [(r"^====== ?([\S \t]+) ?======$", r"# \1\n"),					#headings
 (r"^===== ?([\S \t]+) ?=====$", r"## \1\n"),
 (r"^==== ?([\S \t]+) ?====$", r"### \1\n"),
@@ -53,7 +53,7 @@ conversionRules = \
 (r"''([\S \t]+)''", r"`\1`"),									#monospace/inline code
 (r"^  ([^-*][\S \t]+)$", r"    \1"),							#indented monospace/inline code
 #(r"//([\S \t]+)//", r"*\1*"),									#italic; match pattern currently broken
-(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+) ?\| ?([\S \t ]+)\]\]", r"[\2](\1)"),#links with labeltext
+(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext
 (r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+)\]\]", r"<\1>"),		#links without labeltext
 (r"^([ \t]*)-( ?[\w])", r"\1#. \2"),							#numbered lists
 (r"^([\t ]+)\*([\w])", r"\1* \2"),								#tidying unordered lists:add markdown-mandatory spaces which were optional in dokuwiki
@@ -76,7 +76,7 @@ def tableConvert(mo):#matchObject
 	#print mo.group(0)
 	#print "alalflala"
 	sploit = mo.group(0).replace('^', '|')
-	headerline = re.sub(r"[\A-Za-z',.!? \t]+", dashRepl, sploit)
+	headerline = re.sub(r"[0-9A-Za-z',.!? \t()]+", dashRepl, sploit)
 	print headerline
 	return sploit+"\n"+headerline
 	
@@ -93,10 +93,19 @@ for cwd, dirs, files in os.walk('../import'):
 			#fyl = open("../pages/almondmilk.txt", 'r')
 			pageString = fyl.read()
 			fyl.close()
-			if re.search(conversionRules[0][0], pageString) == None: #promote second-level headings if no top-level headings in document
-				for i in range(4, 0, -1): #4, 3, 2, 1
-					conversionRules[i] = (conversionRules[i][0], conversionRules[i-1][1])
-				conversionRules.pop(0)
+			
+			if re.search(convOrig[0][0], pageString) == None: #promote second-level headings if no top-level headings in document
+				conversionRules = [] #initialise empty list
+				for i in range(1, 5): #1, 2, 3, 4
+					conversionRules.append((convOrig[i][0], convOrig[i-1][1]))	#take the matching rule of headers h2 and below, and convert to h(n-1)
+				conversionRules += convOrig[5:]			#append the rest of the normal rules onto the modified ruleset
+			else:
+				conversionRules = convOrig
+			
+			print "rules: ", len(conversionRules)
+			for thing in conversionRules:
+				print thing
+				
 			for rule in conversionRules:
 				#print rule
 				pat = re.compile(rule[0], re.M)
