@@ -1,0 +1,92 @@
+======Relational Algebra Operators======
+
+Operators are commutative unless specified otherwise.
+
+===== σ Select =====
+
+A subset of the tuples in relation R.
+
+Syntax:
+<code> σ <condition> (R)</code>
+
+eg:
+
+<code>  σ Age > 18 (CITIZENS) </code>
+
+===== π Project =====
+
+A subset of //attributes//. Non-commutative.
+
+Syntax:
+
+<code> π <list of attributes>(R) </code>
+
+
+Example:
+
+<code> π <FName, LName>(STUDENT) </code>
+
+===== ρ Rename =====
+
+Renames relations, attributes or both.
+
+Syntax:
+
+  - Rename relation: <code> ρ<new relation name>(R)  </code>
+  - Rename attribute: <code> ρ(<new attribute names list>)(R)  </code>
+  - Rename both: <code> ρ<new relation name> (<new attribute names list>) (R)  </code>
+
+Alternative Notation:S(B<sub>1</sub>, B<sub>2</sub>, ... B<sub>n</sub>) ← R
+
+Eg:
+  - <code> ρ CASHCOWS (STUDENTS)</code>
+  - <code> ρ(ferstName, larstNem)(R)  </code>
+  - <code> ρ DUDES (dudeName, dudeGender) (R)  </code>
+
+===== Standard Binary Set Operators =====
+
+Can only be applied to relations which are union-compatible:
+  *Same number of attributes which are of same domain(type)
+
+==== ∪ Union ====
+
+<code>R ∪ S</code>
+
+Returns tuples which are in R **or** S
+
+
+==== ∩ Intersection ====
+
+<code>R ∩ S</code>
+
+Returns tuples which are in **both** R **and** S.
+
+
+==== - Difference ====
+
+<code>R - S</code>
+
+Returns tuples which are in R but not in S.
+
+===== Concatenation ======
+
+Attaches one tuple to the end of another thus:
+
+r from R = r<sub>1</sub> ... r<sub>n</sub>
+
+r from S = s<sub>1</sub> ... s<sub>n</sub>
+
+
+CONCAT(r,s) = (r<sub>1</sub> ... r<sub>n</sub>, s<sub>1</sub> ... s<sub>n</sub>)
+
+===== × Cartesian (Cross) Product =====
+
+Returns tuples of all possible combinations (concatenations) of tuples in R and S.
+
+Can be performed on relations which aren't union-compatible.
+
+===== 
+
+[[http://www.databasteknik.se/webbkursen/relalg-lecture/|More notes and obscure symbols on joins]]
+
+{{tag>SCC201}}

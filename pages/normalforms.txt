@@ -1,0 +1,20 @@
+======Normal Forms======
+Different ...standards? ideals? aspirations? for databases. Dry theory.
+=====Normal Form (1NF)=====
+
+  * No composite attributes
+    * Can't have 'Name' field with sub-fields 'First Name' and 'Last Name'
+  * only one value per attribute
+    * eg, can't have list of marks in a single 'marks' field
+  * No repeating fields
+
+=====Second Normal Form (2NF)=====
+
+Must be 1NF, plus:
+  *Every non-prime attribute is dependent on the primary key
+
+=====Third Normal Form (3NF)=====
+
+=====Boyce-Codd Normal Form (BCNF)=====
+
+{{tag>SCC201}}
