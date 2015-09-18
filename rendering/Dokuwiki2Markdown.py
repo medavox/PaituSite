@@ -48,6 +48,8 @@ convOrig = \
 (r"<sub>([\S \t]+)</sub>", r"~\1~"),							#subscript
 (r"<super>([\S \t]+)</super>", r"~\1~"),						#superscript
 (r"<del>([\S \t]+)</del>", r"~~\1~~"),							#strikeout
+(r"//\*\*[^ ]([\S \t]+)[^ ]\*\*//", r""),						#italic-bold
+(r"\*\*//[^ ]([\S \t]+)[^ ]//\*\*", r""),						#bold-italic
 (r"<code (.+)>([\S \n\t]+)</code>", r"```\1\n\2\n```\n"),		#codeblock with language attribute
 (r"<code>(.+)</code>", r"\n```\n\1\n```\n"),					#codeblock without language attribute
 (r"''([\S \t]+)''", r"`\1`"),									#monospace/inline code
@@ -85,7 +87,8 @@ def tableConvert(mo):#matchObject
 
 #def tagConvert(matchObject):
 
-for cwd, dirs, files in os.walk('../import'):
+#for cwd, dirs, files in os.walk('../import'):
+for cwd, dirs, files in os.walk('../munge'):
 	for f in files:
 		if f[-3:] == 'txt':
 			print("converting "+f)
@@ -94,17 +97,18 @@ for cwd, dirs, files in os.walk('../import'):
 			pageString = fyl.read()
 			fyl.close()
 			
-			if re.search(convOrig[0][0], pageString) == None: #promote second-level headings if no top-level headings in document
+			if re.search(re.compile(convOrig[0][0], re.M), pageString) == None: #promote second-level headings if no top-level headings in document
 				conversionRules = [] #initialise empty list
 				for i in range(1, 5): #1, 2, 3, 4
 					conversionRules.append((convOrig[i][0], convOrig[i-1][1]))	#take the matching rule of headers h2 and below, and convert to h(n-1)
 				conversionRules += convOrig[5:]			#append the rest of the normal rules onto the modified ruleset
 			else:
+				print "loituma"
 				conversionRules = convOrig
 			
-			print "rules: ", len(conversionRules)
-			for thing in conversionRules:
-				print thing
+			#print "rules: ", len(conversionRules)
+			#for thing in conversionRules:
+			#	print thing
 				
 			for rule in conversionRules:
 				#print rule
@@ -117,6 +121,7 @@ for cwd, dirs, files in os.walk('../import'):
 			#patty = re.compile(r"^\^ ?([\S \t]+\^)+$", re.M) #table head match rule
 			pageString = re.sub(pati, tableConvert, pageString)
 			
-			converted = open(os.path.join("../converted", f[:-3]+"md"), 'w')
+			#converted = open(os.path.join("../converted", f[:-3]+"md"), 'w')
+			converted = open(os.path.join("../mdfiles", f[:-3]+"md"), 'w')
 			converted.write(pageString)
 			converted.close()

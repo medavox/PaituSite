@@ -1,7 +1,7 @@
+#!/bin/bash
 #to do:
 #keeping the .md version we rendered will help later with checking which files have changed and need re-rendering
 # fix the fact that satripping out tags will mean the lastinput and mdffiles versions are always different
-
 shopt -s extglob ##enable better bash regex support, ie for the ?(pattern) below
 cd ../mdfiles
 fileChanged=false
@@ -19,15 +19,16 @@ for f in *?(\ )*; do
 		#cat "$f" | egrep -v ^%tags\{0,1\}:.*$ >> ../temp/"${g,,}"
 	fi
 done
+
 if $fileChanged ; then #if any files have changed, regenerate the tags and sidemenu
-	./TagParser.py
+	../rendering/TagParser.py
 fi
 
 #render updated files in ../temp/ to html
 for x in $(ls ../temp) ; do
 	echo rendering $x to ${x%md}html
 	#work out a title
-	title=$(head -n 2 "../temp/$x" | grep -B 1 "^=\{3,\}" | head -n 1) # extract a title from the doc first line, if the second line is ===*
+	title=$(head -n 2 "../temp/$x" | grep -B 1 "^=\{3,\}" | head -n 1) # extract a title from the doc first line, if the second line is r"===*"
 	echo title is "$title"
 	#head -n 3 mdfiles/ | egrep ^[a-zA-Z0-9 .,?!]{2,}$^=\{3,\}$ | grep -v ^=\{3,\}
 	#head -n 2  | grep -v "^=\{3,\}"
