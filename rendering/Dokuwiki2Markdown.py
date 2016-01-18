@@ -9,8 +9,7 @@ no-label link internal [[pagename]]
 anchor internal link [[pagename#anchor|this Section]]
 
 italic "//<italictext>//" -> "*<emph>*" or "_<emph>_"
-bold+italic "//**<boldtalic>**//" 	-> "***<strong>***" or "___<strong>___"
-italic+bold "**//<boldtalic>//**" 	-> "***<strong>***" or "___<strong>___"
+
 
 downloadable code blocks "<file <lang> <filename>> <sourcecode> </file>" -> ???
 tag "{{tag><taglist>}} -> "%tag:<taglist>
@@ -22,6 +21,8 @@ footnote = "((footnote text))" -> "^[<inline footnote>]" (ext: inline_notes)
 superscript "<super><text></super>" -> "^<text>^"
 subscript "<sub><text></sub>" -> "~<text>~"
 strikeout "<del><struck></del>" -> ~~<struck>~~" (ext: strikeout)
+bold+italic "//**<boldtalic>**//" 	-> "***<strong>***" or "___<strong>___"
+italic+bold "**//<boldtalic>//**" 	-> "***<strong>***" or "___<strong>___"
 codeblock "<code><text></code>" -> "```\n<text>\n```", or "`<inline code>`"
 codeblock languaged "<code <lang>><text></code>" -> "```<lang>\n<text>\n```"
 monospace "''<mono>''" -> "`<mono>`"
@@ -54,7 +55,7 @@ convOrig = \
 (r"<code>(.+)</code>", r"\n```\n\1\n```\n"),					#codeblock without language attribute
 (r"''([\S \t]+)''", r"`\1`"),									#monospace/inline code
 (r"^  ([^-*][\S \t]+)$", r"    \1"),							#indented monospace/inline code
-#(r"//([\S \t]+)//", r"*\1*"),									#italic; match pattern currently broken
+#(r"[^:]//([\S \t]+)//", r"*\1*"),									#italic; match pattern currently broken
 (r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext
 (r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+)\]\]", r"<\1>"),		#links without labeltext
 (r"^([ \t]*)-( ?[\w])", r"\1#. \2"),							#numbered lists
@@ -64,8 +65,6 @@ convOrig = \
 #unordered list
 #(r"<code(.?( [a-zA-Z]+)?)>([\S \t]+)</code>", r"\n```\1\n\2\n```\n"),#codeblock with optional language attribute
 #conversionRules = [(r"^====== ?([A-Za-z 0-9:-]+) ?======$", r"# \1\n\n")] # test for matching text with punctuation
-
-#print "Lol"
 
 def dashRepl(mo):
 	out = ""

@@ -3,7 +3,7 @@ Laptops always have something wrong with them, probably because of patents or so
 
 Here is a list I'm actively compiling, of things to check for before buying a laptop, to avoid buying dodgy ones.
 
-A lot of these have been discovered from falling for these, so hopefully over time this list become more comprehensive, and I should buy less shoddy laptops.
+A lot of these have been discovered from falling for these, so hopefully over time this list will become more comprehensive, and I should buy less shoddy laptops.
 
 === Keyboard ===
 

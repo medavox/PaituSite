@@ -45,6 +45,7 @@ todo
 	- Downloadable
 	- annotatable with prose on the html page, which is 'outside' the source code file
 		* CoolProgram.java and CooolProgram.md equivalent-named annotation file?
+	- create an %include command, which displays the contents of another file (the source code) in a given doc
 * Date page written, and/or date last updated
 * Clickable list of tags this page has
 * Multiple Author support?

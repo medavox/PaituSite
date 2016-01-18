@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import os, sys, re
+from getPageTitle import getTitle
  
 #if len(sys.argv) < 2:
 #	print "usage:" + sys.argv[0] +  """<dir>
@@ -7,6 +8,8 @@ import os, sys, re
 #	sys.exit(0)
 
 tagDict = dict()
+
+#todo: add list of tags a page has to the bottom of that page
 
 #recursively walks a file tree, from a given directory down
 for cwd, dirs, files in os.walk('../mdfiles'):
@@ -34,22 +37,8 @@ for cwd, dirs, files in os.walk('../mdfiles'):
 								tagDict[tag] = [f]
 			openfile.close()
 
-def getTitle(filename):
-	openMd = open(filename, 'r')
-	#contents = openMd.read()
-	contents = openMd.readline() + openMd.readline() #get first two lines as a str; basically head -n 2
-	#print contents
-	pat = re.compile('^(.+)\n===+$', re.M)
-	suche = pat.search(contents)
-	#print suche
-	if not suche == None:
-		return suche.group(1)
-	else:
-		return ""
-	#print pat.search().group(1)
-
 #generate navbar links to tag pages, as an add-in snippet
-tagEntries = open('./tagEntries.html', 'w')
+tagEntries = open('../html/tagEntries.html', 'w')
 for tag in tagDict.keys():
 	#print tag
 	#consider sorting tags before printing
@@ -61,18 +50,15 @@ for tag in tagDict.keys():
 	for page in tagDict[tag]:
 		link = page.lower().replace(' ', '_')[:-3]+".html"
 		title = getTitle("../mdfiles/"+page)
-		if title == "":			#if the article text contains no discernible title, use the file name
-			title = page[:-3]
+		#if title == "":			#if the article text contains no discernible title, use the file name
+		#	title = page[:-3]
 		tagPage.write("* ["+title+"]("+link+")\n")
 		#pass
 		print tag+":"
-		print "\t"+title
-		print "\t"+link
+		print "\t\""+title+"\" at "+link
 	tagPage.close()
 	
 tagEntries.close()
-
-
 
 #getTitle('../mdfiles/Chat bot project.md')
 #generate the markdown for tag pages
