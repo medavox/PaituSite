@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import sys, re
 
 def getTitle(filename):
@@ -10,11 +11,12 @@ def getTitle(filename):
 	#print suche
 	if not suche == None:
 		return suche.group(1)
-	else:
-		#return filename[11:-3]
+	else: #if the article text contains no discernible title, use the file name
 		nopath = filename.split("/")[-1]
 		return nopath[:-3]
+		
 if len(sys.argv) < 2:
 	print "ERROR: need at least one arg!"
 	sys.exit()
+	#else
 print getTitle(sys.argv[1])

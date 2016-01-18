@@ -41,11 +41,11 @@ Longer Term:
 
 todo
 ----
+* add list of tags a page has to the bottom of that page
 * Syntax Highlighting source code files, making them like in Dokuwiki
-	- Downloadable
+	- Download link for source code files in surrounding page
 	- annotatable with prose on the html page, which is 'outside' the source code file
-		* CoolProgram.java and CooolProgram.md equivalent-named annotation file?
-	- create an %include command, which displays the contents of another file (the source code) in a given doc
+		- create an %include command, which displays the contents of another file (the source code) in a given page
 * Date page written, and/or date last updated
 * Clickable list of tags this page has
 * Multiple Author support?

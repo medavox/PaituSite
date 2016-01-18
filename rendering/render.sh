@@ -19,9 +19,10 @@ for f in *?(\ )*; do # allows bash to loop through files with spaces in their na
 		echo copying $f to ../temp/$cleanedname #make the name lowercase as well
 		cp "$f" ../temp/"$cleanedname" # copy changed files to ../temp/ for rendering, in the next loop
 		#cat "$f" | egrep -v ^%tags\{0,1\}:.*$ >> ../temp/"${g,,}"
-		tytle=$(python ../rendering/getPageTitle.py "$f")
+		
+		#add derived title (in-document or filename) to a bash associative array for later
+		tytle=$(../rendering/getPageTitle.py "$f")
 		titles[$cleanedname]=$tytle
-		#echo "%title:$tytle" >> ../temp/$cleanedname
 	fi
 done
 
@@ -29,13 +30,12 @@ if $fileChanged ; then #if any files have changed, regenerate the tags and sidem
 	../rendering/TagParser.py
 fi
 
-#todo: call the getTitle() python function somehow (put it in its own file?)
-
 #render updated files in ../temp/ to html
 for x in $(ls ../temp) ; do
 	echo rendering $x to ${x%md}html
-	#work out a title
-	inDocTitle=$(head -n 2 "../temp/$x" | grep -B 1 "^=\{3,\}" | head -n 1) # extract a title from the doc first line, if the second line is r"===*"
+	
+	# extract a title from the doc first line, if the second line is r"===*"
+	inDocTitle=$(head -n 2 "../temp/$x" | grep -B 1 "^=\{3,\}" | head -n 1)
 	title=${titles[$x]}
 	echo title is "$title"
 	#head -n 3 mdfiles/ | egrep ^[a-zA-Z0-9 .,?!]{2,}$^=\{3,\}$ | grep -v ^=\{3,\}
