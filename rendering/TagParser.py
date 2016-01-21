@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os, sys, re
 from getPageTitle import getTitle
+from getTags import getTags
  
 #if len(sys.argv) < 2:
 #	print "usage:" + sys.argv[0] +  """<dir>
@@ -13,25 +14,17 @@ tagDict = dict()
 for cwd, dirs, files in os.walk('../mdfiles'):
 	for f in files:
 		if f[-3:] == '.md':
-			openfile = open(os.path.join(cwd,f), 'r')
-			#add stuff here
-			for line in openfile.readlines():
-				if line.startswith("%tag") and ':' in line:#make sure the "%tag" line contains a ":"
-					tagString = line[line.index(':')+1:]#remove the leading "%tag:" from the start of line
-					pat = re.compile(' ?, ?') #remove any spaces before or after the separating comma; but keep tag-internal spaces
-					cleanedCommas = pat.sub( ',', tagString)
-					if cleanedCommas[-1] == '\n':
-						cleanedCommas = cleanedCommas[:-1] #strip trailing newline
-					#print tagString
-					tagList = cleanedCommas.split(',')
-					for tag in tagList:
-						if tag in tagDict:
-							#add this file's name to listvalue of this tagkey
-							tagDict[tag].append(f)
-						else:
-							#initialise this tagkey with a new list containing this filename
-							tagDict[tag] = [f]
-			openfile.close()
+			tagList = getTags(os.path.join(cwd,f))
+			#print f+":"+str(type(tagList))
+			if type(tagList) is list:
+				for tag in tagList:
+					if tag in tagDict:
+						#add this file's name to listvalue of this tagkey
+						tagDict[tag].append(f)
+					else:
+						#initialise this tagkey with a new list containing this filename
+						tagDict[tag] = [f]
+
 
 #generate navbar links to tag pages, as an add-in snippet
 #generate the markdown for tag pages

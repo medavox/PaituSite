@@ -41,6 +41,7 @@ Longer Term:
 
 todo
 ----
+* put generated tag pages in their own directory
 * add list of tags a page has to the bottom of that page
 * Syntax Highlighting source code files, making them like in Dokuwiki
 	- Download link for source code files in surrounding page
