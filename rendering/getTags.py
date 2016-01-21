@@ -23,6 +23,12 @@ if __name__=='__main__':
 		#else
 	tagList = getTags(sys.argv[1])
 	if type(tagList) is list:
+		tagfoot=open("../tagfooter.txt", 'w')
+		
+		tagfoot.write("<p>Tagged as: ")
 		for tag in tagList:
-			print tag
+			#print tag
+			tagfoot.write("<a href="+tag+".html>"+tag+"</a> ")
+		tagfoot.write("</p>")
+		tagfoot.close()
 	#print getTags(sys.argv[1])

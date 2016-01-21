@@ -35,16 +35,15 @@ checkFilesForUpdates
 
 #todo: need to regenerate tags into bash dictionary once tagpage mdfiles have been generated
 if $fileChanged ; then #if any files have changed, regenerate the tags
-	#if [ ! -d ../temp/tags ] ; then # make sure temp directory exists
-#		mkdir -p ../temp/tags
-	#fi
 	../rendering/TagParser.py	#regenerate tag pages
-	#cd ../temp/tags				# 
-	#checkFilesForUpdates		# generate title info for next loop, for these tag pages
-	#for f in *?(\ )*; do # allows bash to loop through files with spaces in their names
-		
-	#done
-	#cd -
+fi
+
+if [ ! -d ../html ] ; then	# make sure html output directory exists
+	mkdir ../html
+fi
+	
+if [ ! -d ../lastinput ] ; then # make sure directory for saved copies of mdfiles last rendered exists
+	mkdir ../lastinput
 fi
 
 #render updated files in ../temp/ to html
@@ -58,18 +57,18 @@ for x in $(ls ../temp) ; do
 		#use it as the title
 		title=$inDocTitle 
 	fi
-	echo title is "$title"
+	#echo title is "$title"
+	
 	#head -n 3 mdfiles/ | egrep ^[a-zA-Z0-9 .,?!]{2,}$^=\{3,\}$ | grep -v ^=\{3,\}
 	#head -n 2  | grep -v "^=\{3,\}"
-	if [ ! -d ../html ] ; then	# make sure html output directory exists
-		mkdir ../html
-	fi
 	
-	#parse tags in a file, create list of tags this article has as links at the bottom
-	for tag in $(../rendering/getTags.py "../temp/$x") ; do
-		#TODO!
-		echo "$x" : "$tag"
-	done
+	#only add the list of tags this page has, if it isn't itself a tag page!
+	isTagPage=$(grep "Pages Tagged" "../temp/$x")
+	tagfooter=""
+	if [ -z "$isTagPage" ] ; then 
+		../rendering/getTags.py "../temp/$x"
+		tagfooter="-A ../tagfooter.txt"
+	fi
 	
 	if [ -n "$inDocTitle" ] ; then #if there's an in-document title, delete it from appearing in the document body
 		inputFile=$(tail -n +3 "../temp/$x")
@@ -79,12 +78,12 @@ for x in $(ls ../temp) ; do
 	
 	echo "$inputFile" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -M title="$title" -B ../rendering/tagEntries.html\
 		-c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s\
-		-r markdown+pipe_tables -w html -o ../html/${x%md}html
+		-r markdown+pipe_tables -w html $tagfooter -o ../html/${x%md}html
 	#cat ../rendering/header.html > ../html/${x%md}html
 	#cat "../temp/$x" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -c ../styles/style.css --toc -r markdown+pipe_tables -w html >> ../html/${x%md}html
 	#cat ../rendering/footer.html >> ../html/${x%md}html
-	if [ ! -d ../lastinput ] ; then
-		mkdir ../lastinput
-	fi
+
 	mv ../temp/$x ../lastinput/$x
 done
+
+#rm ../tagfooter.txt
