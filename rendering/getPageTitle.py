@@ -6,7 +6,7 @@ def getTitle(filename):
 	#contents = openMd.read()
 	contents = openMd.readline() + openMd.readline() #get first two lines as a str; basically head -n 2
 	#print contents
-	pat = re.compile('^(.+)\n===+$', re.M)
+	pat = re.compile('^(.+)\n===+$', re.MULTILINE)
 	suche = pat.search(contents)
 	#print suche
 	if not suche == None:

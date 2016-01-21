@@ -5,7 +5,10 @@ def getTags(filename):
 	openfile = open(filename, 'r')
 	for line in openfile.readlines():
 		if line.startswith("%tag") and ':' in line:#make sure the "%tag" line contains a ":"
-			tagString = line[line.index(':')+1:]#remove the leading "%tag:" from the start of line
+			tagStartIndex = line.index(':')+1
+			if line[tagStartIndex] == ' ':
+				tagStartIndex = tagStartIndex +1
+			tagString = line[tagStartIndex:]#remove the leading "%tag:" from the start of line
 			pat = re.compile(' ?, ?') #remove any spaces before or after the separating comma; but keep tag-internal spaces
 			cleanedCommas = pat.sub( ',', tagString)
 			if cleanedCommas[-1] == '\n':

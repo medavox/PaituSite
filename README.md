@@ -5,6 +5,20 @@ The idea is to have a bunch of markdown files in some (hidden?) dir, then have t
 
 The site should have a menu, be responsive, and be as lightweight and performant as possible
 
+Features
+--------
+
+* title generation
+* tags
+    - uses the special `%tags:` line, containing a comma-seperated list of tags, which can contain spaces
+
+still to come:
+
+* Internal links between articles
+* special `%include` directive, to include the contents of a file inside the rendered copy of another
+* date stamps
+* Syntax highlighting
+
 Posts will be:-
 
 * date marked, and accessible by date
@@ -28,26 +42,20 @@ Longer Term:
 	- Tag List
 	- About/Links (to my github, SO etc)
 	- Other Blogs
-* list of tags:
-	- projects
-	- hardware
-	- software
-	- dev
-	- food
-	- code
-	- rants
-	- navelgazing
-	- etc
 
-todo
+TODO
 ----
-* put generated tag pages in their own directory
-* add list of tags a page has to the bottom of that page
+* fix the fact that stripping out tags will mean the lastinput and mdffiles versions are always different
+* able to link between different pages on blog
 * Syntax Highlighting source code files, making them like in Dokuwiki
 	- Download link for source code files in surrounding page
 	- annotatable with prose on the html page, which is 'outside' the source code file
 		- create an %include command, which displays the contents of another file (the source code) in a given page
 * Date page written, and/or date last updated
-* Clickable list of tags this page has
 * Multiple Author support?
-* able to link between different pages on blog
+* put generated tag pages in their own directory?
+
+DONE
+----
+* The tags (if any) a page has are added as a list of links to the bottom of that page
+* Clickable list of articles with a given tag

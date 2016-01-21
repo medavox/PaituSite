@@ -10,10 +10,14 @@ from getTags import getTags
 
 tagDict = dict()
 
-#parse tags in all md files, creating a global one-to-many associative array (dictionary) of tags to pages
+
 for cwd, dirs, files in os.walk('../mdfiles'):
 	for f in files:
 		if f[-3:] == '.md':
+			linkpat = re.compile('(\[.+\]\()((?!http://)[^/])\)')
+			dogey = linkpat.sub('\1\2.html\)', f)
+
+			#parse %tags, creating a global one-to-many associative array (dictionary) of tags to pages
 			tagList = getTags(os.path.join(cwd,f))
 			#print f+":"+str(type(tagList))
 			if type(tagList) is list:

@@ -15,7 +15,12 @@ h1
 code
 {
 	/*font-size: 1.5em;*/
+	width: 100%;
 	font-family: Monospace;
+	/*padding: 5px;
+	margin: 15px;*/
+	border: thin solid;
+	background-color: #f0f0f0;
 }
 th
 {

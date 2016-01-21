@@ -1,12 +1,8 @@
 #!/bin/bash
-#to do:
-#keeping the .md version we rendered will help later with checking which files have changed and need re-rendering
-# fix the fact that satripping out tags will mean the lastinput and mdffiles versions are always different
 shopt -s extglob ##enable better bash regex support, ie for the ?(pattern) below
 
 fileChanged=false
 declare -A titles
-
 
 function checkFilesForUpdates {
 	for f in *?(\ )*; do # allows bash to loop through files with spaces in their names
@@ -23,7 +19,7 @@ function checkFilesForUpdates {
 			cp "$f" ../temp/"$cleanedname" # copy changed files to ../temp/ for rendering, in the next loop
 			#cat "$f" | egrep -v ^%tags\{0,1\}:.*$ >> ../temp/"${g,,}"
 			
-			#add derived title (in-document or filename) to a bash associative array for later
+			#add derived title to a bash associative array for use by pandoc later
 			tytle=$(../rendering/getPageTitle.py "$f")
 			titles[$cleanedname]="$tytle"
 		fi
@@ -47,34 +43,39 @@ if [ ! -d ../lastinput ] ; then # make sure directory for saved copies of mdfile
 fi
 
 #render updated files in ../temp/ to html
-for x in $(ls ../temp) ; do
+cd ../temp
+for x in *?(\ )* ; do
 	echo rendering $x to ${x%md}html
 	
 	# extract a title from the doc first line, if the second line is r"===*"
-	inDocTitle=$(head -n 2 "../temp/$x" | grep -B 1 "^=\{3,\}" | head -n 1)
+	inDocTitle=$(head -n 2 "$x" | grep -B 1 "^=\{3,\}" | head -n 1)
 	title=${titles[$x]}
 	if [[ -z $title && -n $inDocTitle ]] ; then # if title is empty but inDocTitle isn't, 
 		#use it as the title
 		title=$inDocTitle 
 	fi
-	#echo title is "$title"
+	echo title is "$title"
 	
 	#head -n 3 mdfiles/ | egrep ^[a-zA-Z0-9 .,?!]{2,}$^=\{3,\}$ | grep -v ^=\{3,\}
 	#head -n 2  | grep -v "^=\{3,\}"
 	
 	#only add the list of tags this page has, if it isn't itself a tag page!
-	isTagPage=$(grep "Pages Tagged" "../temp/$x")
+	isTagPage=$(grep "Pages Tagged" "$x")
 	tagfooter=""
 	if [ -z "$isTagPage" ] ; then 
-		../rendering/getTags.py "../temp/$x"
+		../rendering/getTags.py "$x"
 		tagfooter="-A ../tagfooter.txt"
 	fi
 	
 	if [ -n "$inDocTitle" ] ; then #if there's an in-document title, delete it from appearing in the document body
-		inputFile=$(tail -n +3 "../temp/$x")
+		inputFile=$(tail -n +3 "$x")
 	else
-		inputFile=$(cat "../temp/$x")
+		inputFile=$(cat "$x")
 	fi
+	
+	#HERE is where we can do the final pre-processing before passing the resulting mdfile to pandoc
+	
+	inputFile=$(echo $inputFile | sed "s_(\[.+\]\()((?!http://)[^/])\)_\1\2.html\)_g")
 	
 	echo "$inputFile" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -M title="$title" -B ../rendering/tagEntries.html\
 		-c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s\
@@ -83,7 +84,7 @@ for x in $(ls ../temp) ; do
 	#cat "../temp/$x" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -c ../styles/style.css --toc -r markdown+pipe_tables -w html >> ../html/${x%md}html
 	#cat ../rendering/footer.html >> ../html/${x%md}html
 
-	mv ../temp/$x ../lastinput/$x
+	mv "$x" "../lastinput/$x"
 done
 
-#rm ../tagfooter.txt
+rm ../tagfooter.txt
