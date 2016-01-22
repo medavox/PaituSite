@@ -56,7 +56,6 @@ for x in *?(\ )* ; do
 		
 		title=$inDocTitle 
 	fi
-	
 	echo title is "$title"
 	
 	if [ -n "$inDocTitle" ] ; then #if there's an in-document title, delete it from appearing in the document body
@@ -76,5 +75,4 @@ for x in *?(\ )* ; do
 
 	mv "$x" "../lastinput/$x"
 done
-
 rm ../tagfooter.txt

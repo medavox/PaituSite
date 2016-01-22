@@ -1,18 +1,24 @@
 #!/usr/bin/python
 import re, sys
 
-inputFile = sys.argv[1]
-
 
 """
 replaces the %tag(s): command with markdown of links to the tag pages.
   html string of the tags for a given article, as links to the tag pages.
 """
+
+posixPath = "" # todo: get code from home
+
 def handleTagList(inFile):
 	taglistpat = re.compile("^%tags?: ?([^,]+(,[^,])*)$", re.MULTILINE)
 	return taglistpat.sub(tagLister, inFile)
-	
-			
+
+def handleInternalLinks(inFile):
+	linkpat = re.compile("(\[[^]]+\]\((?!http://)[^/])\)", re.MULTLINE)
+	return linkpat.sub("\1\2.html\)", inFile)
+
+def handleDogs(inFile):
+	return inFile
 	
 def tagLister(matchObj):
 	rawTags = matchObj.group(1)
@@ -27,5 +33,8 @@ def tagLister(matchObj):
 	#tagfoot += "</p>"
 	return tagfoot+"\n"
 	
-outputFile = handleTagList(inputFile)#
-print outputFile
+outFile = sys.argv[1]
+for converter in ( handleTagList, handleDogs ):
+	outFile = converter(outFile)
+
+print outFile

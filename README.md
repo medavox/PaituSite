@@ -1,12 +1,21 @@
-A modern Homespun Personal Site on the Paitu
-============================================
+Jekyll's Skinnier Cousin
+========================
 
-The idea is to have a bunch of markdown files in some (hidden?) dir, then have them rendered to a static site
+
+* Generate static blog sites from markdown for a super-fast, super-lightweight blogging platform.
+	- Uses no PHP (or execution of any kind) on the webserver, 
+	and very little javascript on the client (browser). Everyone gets a fast experience!
+	- it's just text!
+* You write some markdown, and you really do get that nice, no-maintenance blog you always wanted.
+* Written in python and bash, so it's even easy to install and run. *cough* jekyll *cough*
+
+* Uses [solid software under the hood](#builton), so none of us (bloggers, readers, developers) have to reinvent the wheel.
 
 The site should have a menu, be responsive, and be as lightweight and performant as possible
 
 Features
 --------
+
 
 * Works out a title for each article, for pandoc to use in the `<title>` tag
 * Uses a custom pandoc html template
@@ -27,11 +36,12 @@ Posts will be:-
 
 * date marked, and accessible by date
 
-Built Using
+<a name="builton"></a>Built Using
 -----------
 
-* PureCSS for the responsive stuff & sidebar
 * Pandoc for the markdown-to-HTML rendering
+* SOON: Pygments for code syntax highlighting!
+* PureCSS for the responsive stuff & sidebar
 * Lots of regular expressions
 * Some standard GNU console programs (diff, grep, head, tail, cat, echo, cp, mv...)
 * Scripted using Bash 4 and Python 2
@@ -54,7 +64,9 @@ Longer Term:
 
 TODO
 ----
-* fix the fact that stripping out tags will mean the lastinput and mdffiles versions are always different
+
+* nicer anchor links support (less html-y, more markdownish) than standard markdown
+* fix the fact that stripping out tags will mean the lastinput and mdfiles versions are always different
 * Link between different pages on blog
 * Syntax Highlighting source code files, making them like in Dokuwiki
 	- Download link for source code files in surrounding page
