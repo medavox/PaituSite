@@ -96,13 +96,13 @@ for cwd, dirs, files in os.walk('../munge'):
 			pageString = fyl.read()
 			fyl.close()
 			
-			if re.search(re.compile(convOrig[0][0], re.M), pageString) == None: #promote second-level headings if no top-level headings in document
+			if re.search(re.compile(convOrig[0][0], re.M), pageString) == None: #promote second-level headings if no top-level headings exist in document
 				conversionRules = [] #initialise empty list
 				for i in range(1, 5): #1, 2, 3, 4
 					conversionRules.append((convOrig[i][0], convOrig[i-1][1]))	#take the matching rule of headers h2 and below, and convert to h(n-1)
 				conversionRules += convOrig[5:]			#append the rest of the normal rules onto the modified ruleset
 			else:
-				print "loituma"
+				#print "loituma"
 				conversionRules = convOrig
 			
 			#print "rules: ", len(conversionRules)

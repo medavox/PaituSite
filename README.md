@@ -79,3 +79,5 @@ DONE
 * The tags (if any) a page has are added as a list of links to the bottom of that page
 * Clickable list of articles with a given tag
 * special `%include` directive, to include the contents of a file inside the rendered copy of another
+
+%tags: readme
