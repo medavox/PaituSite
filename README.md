@@ -8,7 +8,7 @@ The site should have a menu, be responsive, and be as lightweight and performant
 Features
 --------
 
-* Works out a title for article, for pandoc to use in the <title> tag
+* Works out a title for each article, for pandoc to use in the `<title>` tag
 * Uses a custom pandoc html template
 * Article tags
     - uses the special `%tags:` line, containing a comma-seperated list of tags, which can contain spaces
