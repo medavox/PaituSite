@@ -3,6 +3,11 @@ import re, sys
 
 inputFile = sys.argv[1]
 
+
+"""
+replaces the %tag(s): command with markdown of links to the tag pages.
+  html string of the tags for a given article, as links to the tag pages.
+"""
 def handleTagList(inFile):
 	taglistpat = re.compile("^%tags?: ?([^,]+(,[^,])*)$", re.MULTILINE)
 	return taglistpat.sub(tagLister, inFile)
