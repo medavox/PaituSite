@@ -64,6 +64,13 @@ for x in *?(\ )* ; do
 		inputFile=$(cat "$x")
 	fi
 	
+	#syntax highlighting example line
+	#pygments needs the 'full' option in order to pass a stylesheet to the html doc
+	#alternatively run pygments separately (with another argument set i don't know yet)
+	#	to generate a standalone css file
+	#don't forget that you can use `pygmentize -N` to guess a file's language based on its filename
+	#pygmentize -l bash -f html -O linenos=inline,style=pastie,full -o ../render.sh.html render.sh 
+	
 	#sed "s_(\[.+\]\()((?!http://)[^/])\)_\1\2.html\)_g")
 	#HERE is where we can do pre-processing before passing the resulting mdfile to pandoc
 	inputFile="$(../rendering/finalPreprocessor.py "$(echo "$inputFile")" )"

@@ -64,7 +64,8 @@ Longer Term:
 
 TODO
 ----
-
+* put labelled box around `%include`d code, with a clickable link (the filename) to download it
+	- also insert language next to markdown code fence, if detectable
 * nicer anchor links support (less html-y, more markdownish) than standard markdown
 * fix the fact that stripping out tags will mean the lastinput and mdfiles versions are always different
 * Link between different pages on blog
@@ -85,6 +86,18 @@ TODO
 		* how to then call python functions from bash? 
 		* probably doable more neatly than currently
 		* `RESULT=$(python -c 'import test; print test.get_foo()')`
+
+Only activate syntax highlighting inside fenced blocks with a named language, eg:
+
+
+	```java
+
+	public class Foo
+	{
+	...
+	}
+	```
+
 
 DONE
 ----
