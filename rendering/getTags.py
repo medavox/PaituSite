@@ -1,6 +1,15 @@
 #!/usr/bin/python
 import sys, re
 
+"""
+when called from bash:
+
+returns an html string of the tags for a given article, as links to the tag pages.
+
+when called from python:
+returns a list of strings of the tags the given page has.
+"""
+
 def getTags(filename):
 	openfile = open(filename, 'r')
 	for line in openfile.readlines():
@@ -18,7 +27,6 @@ def getTags(filename):
 			openfile.close()
 			return cleanedCommas.split(',')
 
-
 if __name__=='__main__':
 	if len(sys.argv) < 2:
 		print "ERROR: need at least one arg!"
@@ -31,7 +39,7 @@ if __name__=='__main__':
 		tagfoot.write("<p>Tagged as: ")
 		for tag in tagList:
 			#print tag
-			tagfoot.write("<a href="+tag+".html>"+tag+"</a> ")
+			tagfoot.write("<a href="+tag.replace(' ', "%20")+".html>"+tag+"</a> ")
 		tagfoot.write("</p>")
 		tagfoot.close()
 	#print getTags(sys.argv[1])

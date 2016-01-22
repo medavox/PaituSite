@@ -2,7 +2,11 @@
 import os, sys, re
 from getPageTitle import getTitle
 from getTags import getTags
- 
+
+"""
+Creates a page for each tag, with links to each article with that tag.
+"""
+
 #if len(sys.argv) < 2:
 #	print "usage:" + sys.argv[0] +  """<dir>
 #	where <dir> is a root dir of files you wish to analyse recursively."""
@@ -14,9 +18,6 @@ tagDict = dict()
 for cwd, dirs, files in os.walk('../mdfiles'):
 	for f in files:
 		if f[-3:] == '.md':
-			linkpat = re.compile('(\[.+\]\()((?!http://)[^/])\)')
-			dogey = linkpat.sub('\1\2.html\)', f)
-
 			#parse %tags, creating a global one-to-many associative array (dictionary) of tags to pages
 			tagList = getTags(os.path.join(cwd,f))
 			#print f+":"+str(type(tagList))

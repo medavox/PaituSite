@@ -1,6 +1,23 @@
 #!/usr/bin/python
 import sys, re
 
+"""
+returns the derived title of a given mdfile, whether from its markdown title, or its file name.
+works in both python and bash.
+
+python usage:
+
+	from getPageTitle import getTitle
+
+	...
+
+	title = getTitle("../mdfiles/lol.md")
+
+bash usage:
+
+	title=$(./getPageTitle.py ../mdfiles/lol.md)
+"""
+
 def getTitle(filename):
 	openMd = open(filename, 'r')
 	#contents = openMd.read()
