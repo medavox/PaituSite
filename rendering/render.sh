@@ -46,18 +46,17 @@ cd ../temp
 for x in *?(\ )* ; do
 	echo rendering $x to ${x%md}html
 	
+	# extract a title from the doc first line, if the second line is r"===*"
+	inDocTitle=$(head -n 2 "$x" | grep -B 1 "^=\{3,\}" | head -n 1)
+	
 	isTagPage=$(grep "Pages Tagged" "$x")
-	tagfooter=""
-	if [ -z "$isTagPage" ] ; then #only add its tag list to this page, if it isn't itself a tag page
-		../rendering/getTags.py "$x"
-		tagfooter="-A ../tagfooter.txt"
+	if [ -z "$isTagPage" ] ; then
 		title=${titles[$x]}
 	else # (the tagpages didn't exist when the titles dictionary was populated in the last loop)
-		inDocTitle=$(head -n 2 "$x" | grep -B 1 "^=\{3,\}" | head -n 1)
+		
 		title=$inDocTitle 
 	fi
 	
-	# extract a title from the doc first line, if the second line is r"===*"
 	echo title is "$title"
 	
 	if [ -n "$inDocTitle" ] ; then #if there's an in-document title, delete it from appearing in the document body
@@ -66,15 +65,14 @@ for x in *?(\ )* ; do
 		inputFile=$(cat "$x")
 	fi
 	
-	#HERE is where we can do the final pre-processing before passing the resulting mdfile to pandoc
 	#sed "s_(\[.+\]\()((?!http://)[^/])\)_\1\2.html\)_g")
+	#HERE is where we can do pre-processing before passing the resulting mdfile to pandoc
 	inputFile="$(../rendering/finalPreprocessor.py "$(echo "$inputFile")" )"
 	
-	echo "$inputFile" | egrep -v ^%tags\{0,1\}:.*$ | pandoc -M title="$title" -B ../rendering/tagEntries.html\
+	echo "$inputFile" | pandoc -M title="$title" -B ../rendering/tagEntries.html\
 		-c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s\
-		-r markdown+pipe_tables -w html $tagfooter -o ../html/${x%md}html
-	#--toc
-	#cat ../rendering/footer.html >> ../html/${x%md}html
+		-r markdown+pipe_tables -w html -o ../html/${x%md}html
+	#remember the pandoc --toc argument
 
 	mv "$x" "../lastinput/$x"
 done

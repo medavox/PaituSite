@@ -5,6 +5,7 @@ from getTags import getTags
 
 """
 Creates a page for each tag, with links to each article with that tag.
+Tags are found by checking all articles
 """
 
 #if len(sys.argv) < 2:
@@ -26,8 +27,7 @@ for cwd, dirs, files in os.walk('../mdfiles'):
 					if tag in tagDict:
 						#add this file's name to listvalue of this tagkey
 						tagDict[tag].append(f)
-					else:
-						#initialise this tagkey with a new list containing this filename
+					else: #initialise this tagkey with a new list containing this filename
 						tagDict[tag] = [f]
 
 
