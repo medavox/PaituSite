@@ -82,4 +82,3 @@ for x in *?(\ )* ; do
 
 	mv "$x" "../lastinput/$x"
 done
-rm ../tagfooter.txt
