@@ -40,7 +40,7 @@ for tag in tagDict.keys():
 	linkUrl = ""+tag+'.html'
 	tagEntries.write('\n\t\t\t\t\t<li class=\"pure-menu-item\">\n\t\t\t\t\t\t<a href=\"'+linkUrl+
 		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
-	tagPage = open('../temp/'+tag+'.md', 'w')
+	tagPage = open('../temp/'+tag.replace(' ', '_').lower()+'.md', 'w')
 	tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
 	for page in tagDict[tag]:
 		link = page.lower().replace(' ', '_')[:-3]+".html"
@@ -51,6 +51,3 @@ for tag in tagDict.keys():
 	tagPage.close()
 	
 tagEntries.close()
-
-#the link label should be the page title,
-#or failing that, the file name

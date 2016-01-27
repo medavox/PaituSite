@@ -8,8 +8,9 @@ link internal [[pagename|Link text]] -> [Link Text](pagenameAsURL)
 no-label link internal [[pagename]]
 anchor internal link [[pagename#anchor|this Section]]
 
-italic "//<italictext>//" -> "*<emph>*" or "_<emph>_"
-
+italic "//<italictext>//" -> "*<emph>*" or "_<emph>_" WITHOUT CLASHING WITH URLS
+bold+italic "//**<boldtalic>**//" 	-> "***<strong>***" or "___<strong>___"
+italic+bold "**//<boldtalic>//**" 	-> "***<strong>***" or "___<strong>___"
 
 downloadable code blocks "<file <lang> <filename>> <sourcecode> </file>" -> ???
 tag "{{tag><taglist>}} -> "%tag:<taglist>
@@ -21,8 +22,7 @@ footnote = "((footnote text))" -> "^[<inline footnote>]" (ext: inline_notes)
 superscript "<super><text></super>" -> "^<text>^"
 subscript "<sub><text></sub>" -> "~<text>~"
 strikeout "<del><struck></del>" -> ~~<struck>~~" (ext: strikeout)
-bold+italic "//**<boldtalic>**//" 	-> "***<strong>***" or "___<strong>___"
-italic+bold "**//<boldtalic>//**" 	-> "***<strong>***" or "___<strong>___"
+
 codeblock "<code><text></code>" -> "```\n<text>\n```", or "`<inline code>`"
 codeblock languaged "<code <lang>><text></code>" -> "```<lang>\n<text>\n```"
 monospace "''<mono>''" -> "`<mono>`"
@@ -40,27 +40,29 @@ unordered list "  * <text>" -> "* <text>"(dokuwiki lists are just-about-valid ma
 """
 
 convOrig = \
-[(r"^====== ?([\S \t]+) ?======$", r"# \1\n"),					#headings
-(r"^===== ?([\S \t]+) ?=====$", r"## \1\n"),
-(r"^==== ?([\S \t]+) ?====$", r"### \1\n"),
-(r"^=== ?([\S \t]+) ?===$", r"#### \1\n"),
-(r"^== ?([\S \t]+) ?==$", r"##### \1\n"),
-(r"\(\(([\S \t]+)\)\)", r"\^\[\1\]"),							#footnotes
-(r"<sub>([\S \t]+)</sub>", r"~\1~"),							#subscript
-(r"<super>([\S \t]+)</super>", r"~\1~"),						#superscript
-(r"<del>([\S \t]+)</del>", r"~~\1~~"),							#strikeout
-(r"//\*\*[^ ]([\S \t]+)[^ ]\*\*//", r""),						#italic-bold
-(r"\*\*//[^ ]([\S \t]+)[^ ]//\*\*", r""),						#bold-italic
-(r"<code (.+)>([\S \n\t]+)</code>", r"```\1\n\2\n```\n"),		#codeblock with language attribute
-(r"<code>(.+)</code>", r"\n```\n\1\n```\n"),					#codeblock without language attribute
-(r"''([\S \t]+)''", r"`\1`"),									#monospace/inline code
-(r"^  ([^-*][\S \t]+)$", r"    \1"),							#indented monospace/inline code
+[(r"^====== ?([\S \t]+) ?======$",		r"# \1\n"),				#headings
+(r"^===== ?([\S \t]+) ?=====$", 		r"## \1\n"),
+(r"^==== ?([\S \t]+) ?====$",			r"### \1\n"),
+(r"^=== ?([\S \t]+) ?===$",				r"#### \1\n"),
+(r"^== ?([\S \t]+) ?==$",				r"##### \1\n"),
+(r"\(\(([\S \t]+)\)\)", 				r"\^\[\1\]"),			#footnotes
+(r"<sub>([\S \t]+)</sub>",				r"~\1~"),				#subscript
+(r"<super>([\S \t]+)</super>",			r"~\1~"),				#superscript
+(r"<del>([\S \t]+)</del>",				r"~~\1~~"),				#strikeout
+(r"",									r""),
+(r"//\*\*[^ ]([\S \t]+)[^ ]\*\*//", 	r""),					#italic-bold
+(r"\*\*//[^ ]([\S \t]+)[^ ]//\*\*",		r""),					#bold-italic
+
+(r"<code (.+)>([\S \n\t]+)</code>", 	r"```\1\n\2\n```\n"),	#codeblock with language attribute
+(r"<code>(.+)</code>", 					r"\n```\n\1\n```\n"),	#codeblock without language attribute
+(r"''([\S \t]+)''", 					r"`\1`"),				#monospace/inline code
+(r"^  ([^-*][\S \t]+)$",				r"    \1"),				#indented monospace/inline code
 #(r"[^:]//([\S \t]+)//", r"*\1*"),									#italic; match pattern currently broken
 (r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext
-(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+)\]\]", r"<\1>"),		#links without labeltext
-(r"^([ \t]*)-( ?[\w])", r"\1#. \2"),							#numbered lists
-(r"^([\t ]+)\*([\w])", r"\1* \2"),								#tidying unordered lists:add markdown-mandatory spaces which were optional in dokuwiki
-(r"{{tag>([a-zA-Z ,]+)}}", r"\n%tags:\1\n")]					#tag list
+(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+)\]\]",	r"<\1>"),		#links without labeltext
+(r"^([ \t]*)-( ?[\w])", 				r"\1#. \2"),			#numbered lists
+(r"^([\t ]+)\*([\w])",					r"\1* \2"),				#tidying unordered lists:add markdown-mandatory spaces which were optional in dokuwiki
+(r"{{tag>([a-zA-Z ,]+)}}",				r"\n%tags:\1\n")]		#tag list
 
 #unordered list
 #(r"<code(.?( [a-zA-Z]+)?)>([\S \t]+)</code>", r"\n```\1\n\2\n```\n"),#codeblock with optional language attribute

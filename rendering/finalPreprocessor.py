@@ -1,7 +1,15 @@
 #!/usr/bin/python
 import re, sys
 
-posixPath = "([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10}" # todo: get code from home
+#handle includes regexplanation:
+# at the beginning of a line: 0 or more of: (1 or more non-slashes followed by a slash),
+# followed by 0 or more nonslashes (the filename),
+# followed by a dot, then 1-10 ascii latin characters (the file extension). End of line.
+# extensionless files are not supported, because they usually don't show up on the internet,
+# and if they did, they would seem suspicious anyway
+
+#taglistpat = re.compile(r"^%tags?: ?([^,\n]+(,[^,\n])*)$", re.MULTILINE)
+	#linkpat = re.compile('(\[.+\]\()((?!http://)[^/])\)')
 
 """
 handles any remaining in-place article substitutions, before sending to pandoc.
@@ -10,40 +18,20 @@ such as:
 
 * the %include command,
 * making internal links work (todo)
-
 """
-def handleIncludes(inFile): # posix path regex:
-	#regexplanation:
-	# at the beginning of a line: 0 or more (1 or more non-slashes followed by a slash),
-	# followed by 0 or more nonslashes (the filename),
-	# followed by a dot, then 1-10 ascii latin characters (the file extension). End of line.
-	# extensionless files are not supported, because they usually don't show up on the internet,
-	# and if they did, they would be suspicious anyway
-	
-	pat = re.compile(r"^%include ("+posixPath+")$", re.MULTILINE)
-	return pat.sub(includer, inFile)
-
 def includer(matchObj):
-	#print "ding!"
 	includingFileName = matchObj.group(1)
-	print "found file name:"+includingFileName
+	#print "found file name:"+includingFileName
 	openedFile = open(includingFileName, 'r')
 	return openedFile.read()
 
 """
 replaces the %tag(s): Paitu command with markdown of links to the tag pages.
   html string of the tags for a given article, as links to the tag pages.
-"""
-def handleTagList(inFile):
-	#taglistpat = re.compile(r"^%tags?: ?([^,\n]+(,[^,\n])*)$", re.MULTILINE)
-	taglistpat = re.compile(r"^%tags?: ?([^,]+(,[^,]+)*)$", re.MULTILINE)
-	return taglistpat.sub(tagLister, inFile)
-
-"""
 the actual regex function for creating lists of tags, which generates the markdown
 """
 def tagLister(matchObj):
-	print "taglister"
+	#print "taglister"
 	rawTags = matchObj.group(1)
 	pat = re.compile(' ?, ?') #remove any spaces before or after the separating comma; but keep tag-internal spaces
 	cleanedCommas = pat.sub( ',', rawTags)
@@ -52,48 +40,42 @@ def tagLister(matchObj):
 	tagfoot = "\n\nTagged as: " # markdown-output
 	for tag in cleanedCommas.split(','):
 		#tagfoot += "<a href="+tag.replace(' ', "%20")+".html>"+tag+"</a> " # html
-		tagfoot += "["+tag+"]("+tag.replace(' ', "%20")+".html) " # markdown
+		tagfoot += "["+tag+"]("+tag.replace(' ', "_").lower() + ".html) " # markdown
 	#tagfoot += "</p>"
 	return tagfoot+"\n"
 
+def internalLinker(matchObj):
+	#group(0) #the whole match: [case-insensitive internal link](chat bOt project)
+	#print matchObj.group(1) #[case-insensitive internal link](
+	#print matchObj.group(2) #<the path before the filename in the link 'url'>
+	#print matchObj.group(3) #chat bOt project
+	out = matchObj.group(1)
+	
+	if matchObj.group(2) is str:
+		out += matchObj.group(2)
+	
+	return out + matchObj.group(3).lower().replace(' ', '_')+".html)"
+	
 
-#TODO: unfinished
+conversionRules = \
+[(r"^%tags?: ?([^,]+(,[^,]+)*)$", 						tagLister),			#handle tag list
+#(r"(\[[^\]\n]+\]\((?!http://)/?([^/]+/)*)([^./]*)\)", 	r"\1.html)"),		#handle internal links TODO
+(r"(\[[^\]\n]+\]\((?!https?:/)/?([^/]+/)*)([^./]*)\)", 	internalLinker),	#handle internal links TODO
+(r"^<a:([a-zA-Z0-9 _-?!,.]+)>",							"<a name=\"\1\"></a>"),#expand shortened anchor syntax to full html
+(r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#handle includes
+#(r"^```([a-zA-Z0-9.#+-]+)$.+^```$",					syntaxHylyter)]		#syntax highlighter OBSOLETE?
+
 """
 detects markdown links to other local articles, and sticks a .html on the end,
 so rendered articles can link to other rendered articles
 """
-def handleInternalLinks(inFile):
-	#linkpat = re.compile('(\[.+\]\()((?!http://)[^/])\)')
-	"""regexplanation:
-	
-	"""
-	linkpat = re.compile("(\[[^\]\n]+\]\((?!http://)"+posixPath+")\)", re.MULTILINE)
-	return linkpat.sub('\1\2.html\)', inFile)
-	
-#TODO: unfinished
-"""
-detects language-labelled code fence blocks, eg:
-
-```java
-
-blahjava
-
-```
-and runs pygments on them.
-"""
-def syntaxHylyter(inFile):
-	codepat = re.compile(r"^```([a-zA-Z0-9.#+-]+)$.+^```$", re.MULTILINE)
-	
-	return inFile
-
-
-
-#----------commandline runtime
 
 outFile = sys.argv[1]
 # make sure that handleIncludes is executed before syntaxHylyter,
 # so that syntaxHylyter has something to work on for included files
-for converter in ( handleTagList, handleIncludes, syntaxHylyter):
-	outFile = converter(outFile)
+for rule in conversionRules: #( handleTagList, handleIncludes, syntaxHylyter):
+	pat = re.compile(rule[0], re.MULTILINE)
+	outFile = pat.sub(rule[1], outFile)
+	#outFile = converter(outFile)
 
 print outFile

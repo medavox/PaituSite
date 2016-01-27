@@ -12,6 +12,11 @@ h1
 {
 	font-size:1.8em;
 }
+pre.sourceCode
+{
+	border: thin solid;
+	background-color: #f4f4f4;
+}
 code
 {
 	/*font-size: 1.5em;*/
@@ -19,8 +24,7 @@ code
 	font-family: Monospace;
 	/*padding: 5px;
 	margin: 15px;*/
-	border: thin solid;
-	background-color: #f0f0f0;
+	
 }
 th
 {
@@ -46,17 +50,18 @@ span
 	font-family: Courier New;
 }
 
-.c /*pygments comments*/
+/*.c pygments comments
 {
 
 	color: #999;
-}
+}*/
 
 
-.k /*pygments keywords*/
+/*.k pygments keywords
 {
 	font-weight: bold;
-}
+}*/
+
 /*
 {
   w: 'Whitespace',

@@ -23,8 +23,11 @@ Features
     - uses the special `%tags:` line, containing a comma-seperated list of tags, which can contain spaces
     - also generates a page for each tag, listing all the articles with that tag
 * Caches the last-rendered input (in lastinput/), so it knows which files have changed/are new since the last run
-* An %include command, which includes the contents of another file (eg source code) in a given rendered page
+* An `%include` command, which includes the contents of another file (eg source code) in a given page
 	- usage: `%include path/to/file.ext` on its own line. Files must have an extension, because otherwise they'd appear too dodgy for the internet
+* Link between different pages on blog
+* Syntax highlighting of `%include`d source code files
+* Nicer anchor links support (less html-y, more markdownish) than standard markdown
 
 ###still to come:
 
@@ -64,14 +67,9 @@ Longer Term:
 
 TODO
 ----
-* put labelled box around `%include`d code, with a clickable link (the filename) to download it
+* In rendered page, put labelled box around `%include`d code, with a download link (the filename)
 	- also insert language next to markdown code fence, if detectable
-* nicer anchor links support (less html-y, more markdownish) than standard markdown
 * fix the fact that stripping out tags will mean the lastinput and mdfiles versions are always different
-* Link between different pages on blog
-* Syntax Highlighting source code files, making them like in Dokuwiki
-	- Download link for source code files in surrounding page
-	- annotatable with prose on the html page, which is 'outside' the source code file
 * Date page written, and/or date last updated
 * Multiple Author support?
 * put generated tag pages in their own directory?
@@ -82,10 +80,6 @@ TODO
 		* moving, copying & removing files
 	- replace 2nd phase of render.sh with python?
 		* same
-	- recombine python code into fewer files
-		* how to then call python functions from bash? 
-		* probably doable more neatly than currently
-		* `RESULT=$(python -c 'import test; print test.get_foo()')`
 
 Only activate syntax highlighting inside fenced blocks with a named language, eg:
 

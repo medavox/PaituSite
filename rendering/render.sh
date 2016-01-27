@@ -71,7 +71,8 @@ for x in *?(\ )* ; do
 	#don't forget that you can use `pygmentize -N` to guess a file's language based on its filename
 	#pygmentize -l bash -f html -O linenos=inline,style=pastie,full -o ../render.sh.html render.sh 
 	
-	#sed "s_(\[.+\]\()((?!http://)[^/])\)_\1\2.html\)_g")
+	#RESULT=$(python -c 'import test; print test.get_foo()')
+	
 	#HERE is where we can do pre-processing before passing the resulting mdfile to pandoc
 	inputFile="$(../rendering/finalPreprocessor.py "$(echo "$inputFile")" )"
 	
