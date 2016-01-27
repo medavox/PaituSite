@@ -48,42 +48,34 @@ def dashRepl(mo):
 def tableConvert(mo):#matchObject
 	#print mo.string
 	#print mo.group(0)
-	#print "alalflala"
 	sploit = mo.group(0).replace('^', '|')
 	headerline = re.sub(r"[0-9A-Za-z',.!? \t()]+", dashRepl, sploit)
 	print headerline
 	return sploit+"\n"+headerline
 
 convOrig = \
-[(r"^====== ?([\S \t]+) ?======$",		r"# \1\n"),				#headings
-(r"^===== ?([\S \t]+) ?=====$", 		r"## \1\n"),
-(r"^==== ?([\S \t]+) ?====$",			r"### \1\n"),
-(r"^=== ?([\S \t]+) ?===$",				r"#### \1\n"),
-(r"^== ?([\S \t]+) ?==$",				r"##### \1\n"),
-(r"\(\(([\S \t]+)\)\)", 				r"\^\[\1\]"),			#footnotes
-(r"<sub>([\S \t]+)</sub>",				r"~\1~"),				#subscript
-(r"<super>([\S \t]+)</super>",			r"~\1~"),				#superscript
-(r"<del>([\S \t]+)</del>",				r"~~\1~~"),				#strikeout
-(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext
-(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+)\]\]",	r"<\1>"),		#links without labeltext
-(r"(?<!http:)//([^/]+)//",				r"_\1_"),				#italic!
-#(r"//\*\*[^ ]([\S \t]+)[^ ]\*\*//", 	r""),					#italic-bold
-#(r"\*\*//[^ ]([\S \t]+)[^ ]//\*\*",	r""),					#bold-italic
-(r"\\\\[ \n]",							r"  \n"),				#forced linebreak
-(r"<code (.+)>([\S \n\t]+)</code>", 	r"```\1\n\2\n```\n"),	#codeblock with language attribute
-(r"<code>(.+)</code>", 					r"\n```\n\1\n```\n"),	#codeblock without language attribute
-(r"''([^']+)''", 						r"`\1`"),				#monospace/inline code
-(r"^  ([^-*][\S \t]+)$",				r"    \1"),				#indented monospace/inline code
-(r"^([ \t]*)-( ?[\w])", 				r"\1#. \2"),			#numbered lists
-(r"^([\t ]+)\*([\w])",					r"\1* \2"),				#tidying unordered lists:add markdown-mandatory spaces which were optional in dokuwiki
-(r"{{tag>([a-zA-Z ,]+)}}",				r"\n%tags:\1\n"),		#tag list
-(r"^\^ ?([\S \t]+\^)+$",				tableConvert)]			#table head match rule
+[(r"^====== ?([\S \t]+) ?======$",	r"# \1\n"),			#headings
+(r"^===== ?([\S \t]+) ?=====$", 	r"## \1\n"),
+(r"^==== ?([\S \t]+) ?====$",		r"### \1\n"),
+(r"^=== ?([\S \t]+) ?===$",			r"#### \1\n"),
+(r"^== ?([\S \t]+) ?==$",			r"##### \1\n"),
+(r"\(\(([\S \t]+)\)\)", 			r"\^\[\1\]"),			#footnotes
+(r"<sub>([\S \t]+)</sub>",			r"~\1~"),				#subscript
+(r"<sup>([\S \t]+)</sup>",			r"^\1^"),				#superscript
+(r"<del>([\S \t]+)</del>",			r"~~\1~~"),				#strikeout
+(r"\[\[(https?://[\w./?&=+,#-]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext
+(r"\[\[(https?://[\w./?&=+,#-]+)\]\]",	r"<\1>"),			#links without labeltext
+(r"(?<!http:)//([^/]+)//",			r"_\1_"),				#italic!
+(r"\\\\[ \n]",						r"  \n"),				#forced linebreak
+(r"<code ([\w.#+-]+)>([\S \n\t]+)</code>", r"```\1\n\2\n```\n"),	#codeblock with language attribute
+(r"<code>([\S \t\n]+)</code>", 		r"\n```\n\1\n```\n"),	#codeblock without language attribute
+(r"''([^']+)''", 					r"`\1`"),				#monospace/inline code
+(r"^  ([^-*][\S \t]+)$",			r"    \1"),				#indented monospace/inline code
+(r"^([ \t]*)-( ?[\w])", 			r"\1#. \2"),			#numbered lists
+(r"^([\t ]+)\*([\w])",				r"\1* \2"),				#unordered lists:add markdown-mandatory spaces which were optional in dokuwiki
+(r"{{tag>([a-zA-Z ,]+)}}",			r"\n%tags:\1\n"),		#tag list
+(r"^\^ ?([\S \t]+\^)+$",			tableConvert)]			#table head match rule
 
-#unordered list
-#(r"<code(.?( [a-zA-Z]+)?)>([\S \t]+)</code>", r"\n```\1\n\2\n```\n"),#codeblock with optional language attribute
-#conversionRules = [(r"^====== ?([A-Za-z 0-9:-]+) ?======$", r"# \1\n\n")] # test for matching text with punctuation
-
-	
 #for cwd, dirs, files in os.walk('../import'):
 for cwd, dirs, files in os.walk('../munge'):
 	for f in files:
