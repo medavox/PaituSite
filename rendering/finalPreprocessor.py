@@ -59,9 +59,8 @@ def internalLinker(matchObj):
 
 conversionRules = \
 [(r"^%tags?: ?([^,]+(,[^,]+)*)$", 						tagLister),			#handle tag list
-#(r"(\[[^\]\n]+\]\((?!http://)/?([^/]+/)*)([^./]*)\)", 	r"\1.html)"),		#handle internal links TODO
 (r"(\[[^\]\n]+\]\((?!https?:/)/?([^/]+/)*)([^./]*)\)", 	internalLinker),	#handle internal links TODO
-(r"^<a:([a-zA-Z0-9 _-?!,.]+)>",							"<a name=\"\1\"></a>"),#expand shortened anchor syntax to full html
+#(r"^<a:([a-zA-Z0-9 _-?!,.]+)>",							r"<a name=\"\1\"></a>"),#expand shortened anchor syntax to full html
 (r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#handle includes
 #(r"^```([a-zA-Z0-9.#+-]+)$.+^```$",					syntaxHylyter)]		#syntax highlighter OBSOLETE?
 
