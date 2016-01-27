@@ -16,7 +16,7 @@ function checkFilesForUpdates {
 		g="${f// /_}" # replace spaces with underscores in filenames
 		cleanedname=${g,,}
 		dift=$(diff -qN "$f" ../lastinput/$cleanedname)
-		if [ -n "$dift" ]; then # if working copy in ../mdfiles/ differs from last rendered version in ../lastinput/
+		if [ -n "$dift" ]; then # if working copy in ../articles/ differs from last rendered version in ../lastinput/
 			#echo $f HAS CHANGED!
 			guaranteeFolder ../temp # make sure temp directory exists
 			fileChanged=true
@@ -31,15 +31,15 @@ function checkFilesForUpdates {
 	cd $OLDPWD
 }
 
-checkFilesForUpdates ../mdfiles
+checkFilesForUpdates ../articles
 
-#todo: need to regenerate tags into bash dictionary once tagpage mdfiles have been generated
+#todo: need to regenerate tags into bash dictionary once tagpage articles have been generated
 if $fileChanged ; then #if any files have changed, regenerate the tags
 	../rendering/TagParser.py	#regenerate tag pages
 fi
 
 guaranteeFolder ../html # make sure html output directory exists
-guaranteeFolder ../lastinput # make sure directory for saved copies of mdfiles last rendered exists
+guaranteeFolder ../lastinput # make sure directory for saved copies of articles last rendered exists
 
 #render updated files in ../temp/ to html
 cd ../temp

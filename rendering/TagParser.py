@@ -16,7 +16,7 @@ Tags are found by checking all articles
 tagDict = dict()
 
 
-for cwd, dirs, files in os.walk('../mdfiles'):
+for cwd, dirs, files in os.walk('../articles'):
 	for f in files:
 		if f[-3:] == '.md':
 			#parse %tags, creating a global one-to-many associative array (dictionary) of tags to pages
@@ -33,18 +33,20 @@ for cwd, dirs, files in os.walk('../mdfiles'):
 
 #generate navbar links to tag pages, as an add-in snippet
 #generate the markdown for tag pages
-tagEntries = open('../html/tagEntries.html', 'w')
+tagEntries = open('../temp/tagEntries.md', 'w')
+tagEntries.write("All Tags\n===\n")
 for tag in tagDict.keys():
 	#print tag
 	#consider sorting tags before printing
-	linkUrl = ""+tag+'.html'
-	tagEntries.write('\n\t\t\t\t\t<li class=\"pure-menu-item\">\n\t\t\t\t\t\t<a href=\"'+linkUrl+
-		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
+	linkUrl = ""+tag
+	tagEntries.write("* "+tag+"\n")
+	#tagEntries.write('\n\t\t\t\t\t<li class=\"pure-menu-item\">\n\t\t\t\t\t\t<a href=\"'+linkUrl+
+	#	'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
 	tagPage = open('../temp/'+tag.replace(' ', '_').lower()+'.md', 'w')
 	tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
 	for page in tagDict[tag]:
 		link = page.lower().replace(' ', '_')[:-3]+".html"
-		title = getTitle("../mdfiles/"+page)
+		title = getTitle("../articles/"+page)
 		tagPage.write("* ["+title+"]("+link+")\n")
 		print tag+":"
 		print "\t\""+title+"\" at "+link

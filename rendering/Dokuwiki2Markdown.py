@@ -39,35 +39,6 @@ bold "**<boldtext>**" 	-> "**<strong>**" or "__<strong>__"
 unordered list "  * <text>" -> "* <text>"(dokuwiki lists are just-about-valid markdown lists)
 """
 
-convOrig = \
-[(r"^====== ?([\S \t]+) ?======$",		r"# \1\n"),				#headings
-(r"^===== ?([\S \t]+) ?=====$", 		r"## \1\n"),
-(r"^==== ?([\S \t]+) ?====$",			r"### \1\n"),
-(r"^=== ?([\S \t]+) ?===$",				r"#### \1\n"),
-(r"^== ?([\S \t]+) ?==$",				r"##### \1\n"),
-(r"\(\(([\S \t]+)\)\)", 				r"\^\[\1\]"),			#footnotes
-(r"<sub>([\S \t]+)</sub>",				r"~\1~"),				#subscript
-(r"<super>([\S \t]+)</super>",			r"~\1~"),				#superscript
-(r"<del>([\S \t]+)</del>",				r"~~\1~~"),				#strikeout
-(r"",									r""),
-(r"//\*\*[^ ]([\S \t]+)[^ ]\*\*//", 	r""),					#italic-bold
-(r"\*\*//[^ ]([\S \t]+)[^ ]//\*\*",		r""),					#bold-italic
-
-(r"<code (.+)>([\S \n\t]+)</code>", 	r"```\1\n\2\n```\n"),	#codeblock with language attribute
-(r"<code>(.+)</code>", 					r"\n```\n\1\n```\n"),	#codeblock without language attribute
-(r"''([\S \t]+)''", 					r"`\1`"),				#monospace/inline code
-(r"^  ([^-*][\S \t]+)$",				r"    \1"),				#indented monospace/inline code
-#(r"[^:]//([\S \t]+)//", r"*\1*"),									#italic; match pattern currently broken
-(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext
-(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+)\]\]",	r"<\1>"),		#links without labeltext
-(r"^([ \t]*)-( ?[\w])", 				r"\1#. \2"),			#numbered lists
-(r"^([\t ]+)\*([\w])",					r"\1* \2"),				#tidying unordered lists:add markdown-mandatory spaces which were optional in dokuwiki
-(r"{{tag>([a-zA-Z ,]+)}}",				r"\n%tags:\1\n")]		#tag list
-
-#unordered list
-#(r"<code(.?( [a-zA-Z]+)?)>([\S \t]+)</code>", r"\n```\1\n\2\n```\n"),#codeblock with optional language attribute
-#conversionRules = [(r"^====== ?([A-Za-z 0-9:-]+) ?======$", r"# \1\n\n")] # test for matching text with punctuation
-
 def dashRepl(mo):
 	out = ""
 	for i in range(len(mo.group(0))):
@@ -82,16 +53,41 @@ def tableConvert(mo):#matchObject
 	headerline = re.sub(r"[0-9A-Za-z',.!? \t()]+", dashRepl, sploit)
 	print headerline
 	return sploit+"\n"+headerline
+
+convOrig = \
+[(r"^====== ?([\S \t]+) ?======$",		r"# \1\n"),				#headings
+(r"^===== ?([\S \t]+) ?=====$", 		r"## \1\n"),
+(r"^==== ?([\S \t]+) ?====$",			r"### \1\n"),
+(r"^=== ?([\S \t]+) ?===$",				r"#### \1\n"),
+(r"^== ?([\S \t]+) ?==$",				r"##### \1\n"),
+(r"\(\(([\S \t]+)\)\)", 				r"\^\[\1\]"),			#footnotes
+(r"<sub>([\S \t]+)</sub>",				r"~\1~"),				#subscript
+(r"<super>([\S \t]+)</super>",			r"~\1~"),				#superscript
+(r"<del>([\S \t]+)</del>",				r"~~\1~~"),				#strikeout
+(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext
+(r"\[\[(https?://[a-zA-Z-_./?&=0-9+,#]+)\]\]",	r"<\1>"),		#links without labeltext
+(r"(?<!http:)//([^/]+)//",				r"_\1_"),				#italic!
+#(r"//\*\*[^ ]([\S \t]+)[^ ]\*\*//", 	r""),					#italic-bold
+#(r"\*\*//[^ ]([\S \t]+)[^ ]//\*\*",	r""),					#bold-italic
+(r"\\\\[ \n]",							r"  \n"),				#forced linebreak
+(r"<code (.+)>([\S \n\t]+)</code>", 	r"```\1\n\2\n```\n"),	#codeblock with language attribute
+(r"<code>(.+)</code>", 					r"\n```\n\1\n```\n"),	#codeblock without language attribute
+(r"''([^']+)''", 						r"`\1`"),				#monospace/inline code
+(r"^  ([^-*][\S \t]+)$",				r"    \1"),				#indented monospace/inline code
+(r"^([ \t]*)-( ?[\w])", 				r"\1#. \2"),			#numbered lists
+(r"^([\t ]+)\*([\w])",					r"\1* \2"),				#tidying unordered lists:add markdown-mandatory spaces which were optional in dokuwiki
+(r"{{tag>([a-zA-Z ,]+)}}",				r"\n%tags:\1\n"),		#tag list
+(r"^\^ ?([\S \t]+\^)+$",				tableConvert)]			#table head match rule
+
+#unordered list
+#(r"<code(.?( [a-zA-Z]+)?)>([\S \t]+)</code>", r"\n```\1\n\2\n```\n"),#codeblock with optional language attribute
+#conversionRules = [(r"^====== ?([A-Za-z 0-9:-]+) ?======$", r"# \1\n\n")] # test for matching text with punctuation
+
 	
-	#string.replace("{{
-	#pat = re.compile("", re.M)
-
-#def tagConvert(matchObject):
-
 #for cwd, dirs, files in os.walk('../import'):
 for cwd, dirs, files in os.walk('../munge'):
 	for f in files:
-		if f[-3:] == 'txt':
+		if f[-4:] == '.txt':
 			print("converting "+f)
 			fyl = open(os.path.join(cwd,f), 'r')
 			#fyl = open("../pages/almondmilk.txt", 'r')
@@ -107,22 +103,13 @@ for cwd, dirs, files in os.walk('../munge'):
 				#print "loituma"
 				conversionRules = convOrig
 			
-			#print "rules: ", len(conversionRules)
-			#for thing in conversionRules:
-			#	print thing
-				
+			#this is where it all gets done
 			for rule in conversionRules:
 				#print rule
 				pat = re.compile(rule[0], re.M)
-				#mo = pat.search(pageString)
-				#print mo
-				#print mo.groups()
-				pageString = re.sub(pat, rule[1], pageString)
-			pati  = re.compile(r"^\^ ?([\S \t]+\^)+$", flags=re.M) #table head match rule
-			#patty = re.compile(r"^\^ ?([\S \t]+\^)+$", re.M) #table head match rule
-			pageString = re.sub(pati, tableConvert, pageString)
+				pageString = pat.sub(rule[1], pageString)
 			
 			#converted = open(os.path.join("../converted", f[:-3]+"md"), 'w')
-			converted = open(os.path.join("../mdfiles", f[:-3]+"md"), 'w')
+			converted = open(os.path.join("../articles", f[:-3]+"md"), 'w')
 			converted.write(pageString)
 			converted.close()

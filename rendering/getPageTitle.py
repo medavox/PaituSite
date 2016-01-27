@@ -11,11 +11,11 @@ python usage:
 
 	...
 
-	title = getTitle("../mdfiles/lol.md")
+	title = getTitle("../articles/lol.md")
 
 bash usage:
 
-	title=$(./getPageTitle.py ../mdfiles/lol.md)
+	title=$(./getPageTitle.py ../articles/lol.md)
 """
 
 def getTitle(filename):
