@@ -11,6 +11,8 @@ import re, sys
 #taglistpat = re.compile(r"^%tags?: ?([^,\n]+(,[^,\n])*)$", re.MULTILINE)
 	#linkpat = re.compile('(\[.+\]\()((?!http://)[^/])\)')
 
+tagDict = dict()
+
 """
 handles any remaining in-place article substitutions, before sending to pandoc.
 

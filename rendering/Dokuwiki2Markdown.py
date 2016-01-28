@@ -37,7 +37,27 @@ blockquote (seems to be the same)
 horizontal rule "-{4,}" - > "-{3,}" (so it's basically fine)
 bold "**<boldtext>**" 	-> "**<strong>**" or "__<strong>__"
 unordered list "  * <text>" -> "* <text>"(dokuwiki lists are just-about-valid markdown lists)
+
+BUGS:
+* matched strings inside of escape characters are not ignored by this file. eg:
+
+When you use the ''%%<code>%%'' or ''%%<file>%%'' syntax as above, you might want to make the shown code available for download as well. You can do this by specifying a file name after language code like this:
+
+* a <code> tag wrapped around a <file> tag will, at best, produce two sets of of ``` fences; 
+	one at the start, one at the end. At the moment though, something else is going on.
+<code>
+<file php myexample.php>
+<?php echo "hello world!"; ?>
+</file>
+</code>
+
+<file php myexample.php>
+<?php echo "hello world!"; ?>
+</file>
 """
+
+footnote = 0
+nohttp = r"[^h][^t][^t][^p][^:]"
 
 def dashRepl(mo):
 	out = ""
@@ -52,6 +72,34 @@ def tableConvert(mo):#matchObject
 	headerline = re.sub(r"[0-9A-Za-z',.!? \t()]+", dashRepl, sploit)
 	print headerline
 	return sploit+"\n"+headerline
+	
+def footnoter(mo):
+	global footnote
+	footnote+=1
+	fetnut = "[^"+str(footnote)+"]"
+	return ""+fetnut+mo.group(2)+"\n"+fetnut+": "+mo.group(1)
+	#r"[^"+str(footnote+=1)+"]\2\n[^"+str(footnote)+"]:\1"
+	
+"""
+converts files embedded into dokuwiki documents with the <file> tag into standalone files, 
+which are %included back into the document at compile time
+"""
+def unembedFile(mo):
+	print "unembedder!"
+	#group 1 = the language type
+	#group 2 = the file name
+	#group 3 = the file contents
+	
+	newPath = "../includes/"+mo.group(2)
+	embeddedFile = open(newPath,'w')
+	embeddedFile.write(mo.group(3))
+	embeddedFile.close()
+	
+	language = mo.group(1)
+	if language == "-":
+		language = ""
+	
+	return "```"+language+"\n%include "+newPath+"\n```\n"
 
 convOrig = \
 [(r"^====== ?([\S \t]+) ?======$",	r"# \1\n"),			#headings
@@ -59,21 +107,25 @@ convOrig = \
 (r"^==== ?([\S \t]+) ?====$",		r"### \1\n"),
 (r"^=== ?([\S \t]+) ?===$",			r"#### \1\n"),
 (r"^== ?([\S \t]+) ?==$",			r"##### \1\n"),
-(r"\(\(([\S \t]+)\)\)", 			r"\^\[\1\]"),			#footnotes
+(r"\(\(([\S \t]+)\)\)([\S \t]*)$",	footnoter),				#footnotes
 (r"<sub>([\S \t]+)</sub>",			r"~\1~"),				#subscript
 (r"<sup>([\S \t]+)</sup>",			r"^\1^"),				#superscript
 (r"<del>([\S \t]+)</del>",			r"~~\1~~"),				#strikeout
-(r"\[\[(https?://[\w./?&=+,#-]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext
-(r"\[\[(https?://[\w./?&=+,#-]+)\]\]",	r"<\1>"),			#links without labeltext
-(r"(?<!http:)//([^/]+)//",			r"_\1_"),				#italic!
+#(r"\[\[(https?://[\w./?&=+,#-]+) ?\| ?([\S \t]+)\]\]", r"[\2](\1)"),#links with labeltext OLD
+(r"\[\[([\w./:?&=+,#-]+) ?\| ?([^\]]+)\]\]", r"[\2](\1)"),#links with labeltext
+(r"\[\[([^\]]+)\]\]",				r"<\1>"),				#links without labeltext
+(r"(?<!http:)//([^/]+)//",			r"_\1_"),				#italic! (excepting http links)
+(r"(?<!https:)//([^/]+)//",			r"_\1_"),				#italic! (excepting https links)
 (r"\\\\[ \n]",						r"  \n"),				#forced linebreak
-(r"<code ([\w.#+-]+)>([\S \n\t]+)</code>", r"```\1\n\2\n```\n"),	#codeblock with language attribute
-(r"<code>([\S \t\n]+)</code>", 		r"\n```\n\1\n```\n"),	#codeblock without language attribute
+(r"<code ([\w.#+-]+)>((.|\n)+?)</code>", r"```\1\n\2\n```\n"),	#codeblock with language attribute
+(r"<code>((.|\n)+?)</code>", 	r"\n```\n\1\n```\n"),		#codeblock without language attribute
+#<file autohotkey TimeTracker-1.0.ahk>
+(r"<file ([\w.#+-]+) ([^>]+)>((.|\n)+?)</file>", unembedFile),	#embedded <file> blocks to included seperate files
 (r"''([^']+)''", 					r"`\1`"),				#monospace/inline code
 (r"^  ([^-*][\S \t]+)$",			r"    \1"),				#indented monospace/inline code
 (r"^([ \t]*)-( ?[\w])", 			r"\1#. \2"),			#numbered lists
 (r"^([\t ]+)\*([\w])",				r"\1* \2"),				#unordered lists:add markdown-mandatory spaces which were optional in dokuwiki
-(r"{{tag>([a-zA-Z ,]+)}}",			r"\n%tags:\1\n"),		#tag list
+(r"{{tag>([\w ,]+)}}",				r"\n%tags:\1\n"),		#tag list
 (r"^\^ ?([\S \t]+\^)+$",			tableConvert)]			#table head match rule
 
 #for cwd, dirs, files in os.walk('../import'):

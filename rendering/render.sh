@@ -78,7 +78,7 @@ for x in *?(\ )* ; do
 	
 	echo "$inputFile" | pandoc -M title="$title" -B ../rendering/tagEntries.html\
 		-c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s\
-		-r markdown+pipe_tables -w html -o ../html/${x%md}html
+		-r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/${x%md}html
 	#remember the pandoc --toc argument
 
 	mv "$x" "../lastinput/$x"
