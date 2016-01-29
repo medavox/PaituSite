@@ -1,9 +1,8 @@
 #!/usr/bin/python
-import re,sys,os,os.path,subprocess
+import re,sys,os,os.path,subprocess,tempfile,time
 from tweaks import preProcess
-from TagParser import parseTags
-#shopt -s extglob ##enable better bash regex support, ie for the ?(pattern) below
-
+from inspect import dumpObj
+#
 fileChanged = False
 titles = dict()
 
@@ -35,7 +34,6 @@ works in both python and bash.
 """
 def getTitle(filename):
 	openMd = open(filename, 'r')
-	#contents = openMd.read()
 	contents = openMd.readline() + openMd.readline() #get first two lines as a str; basically head -n 2
 	#print contents
 	pat = re.compile('^(.+)\n===+$', re.MULTILINE)
@@ -44,19 +42,19 @@ def getTitle(filename):
 	if suche == None:
 		suche = pat2.search(contents)
 	#print suche
-	if not suche == None:
-		return (suche.group(1), True)
-	else: #if the article text contains no discernible title, use the file name
+	if suche == None:
 		nopath = filename.split("/")[-1]
 		if nopath.endswith(".md"):
 			return (nopath[:-3], False)
 		else:
 			return (nopath, False)
+	else: #if the article text contains no discernible title, use the file name
+		return (suche.group(1), True)
 
 #generate navbar links to tag pages, as an add-in snippet
 #generate the markdown for tag pages
 def parseTags(nope):
-	#parse %tags, creating a global one-to-many associative array (dictionary) of tags to pages
+	#from %tags, create a global one-to-many associative array (dictionary) of tags to pages
 	for f in os.listdir("../articles"):
 		if f[-3:] == '.md':
 			tagList = getTags("../articles/"+f)
@@ -64,15 +62,13 @@ def parseTags(nope):
 			if type(tagList) is list:
 				for tag in tagList:
 					if tag in tagDict:
-						#add this file's name to listvalue of this tagkey
-						tagDict[tag].append(f)
+						tagDict[tag].append(f)#add this file's name to listvalue of this tagkey
 					else: #initialise this tagkey with a new list containing this filename
 						tagDict[tag] = [f]
-	
 	#tagEntries = open('../temp/all_tags.html', 'w')
 	#tagEntries.write("# All Tags\n")
 	
-	#create a page for every found tag.
+	#create a page for every tag found in all the articles.
 	#on that page, add a link to every article with that tag
 	for tag in tagDict.keys():
 		#consider sorting tags before printing
@@ -90,6 +86,8 @@ def parseTags(nope):
 			print "\t\""+title+"\" at "+link
 		tagPage.close()
 	#tagEntries.close()
+
+#--------------------begin!
 
 for liveFile in os.listdir("../articles"):
 	if liveFile.endswith(".md"):
@@ -128,22 +126,28 @@ for x in os.listdir("../temp"):
 	if x.endswith(".md"):
 		print "rendering "+x+" to "+x[:-2]+"html"
 	
-	# extract a title from the doc first line, if the second line is r"===*"
 	inDocTitle = titles[x][1]
 	title=titles[x][0]
 	
 	print "title is "+title
 	
-	fileContentsAsLines = open("../temp/"+x,'r').readlines()
-
-	if inDocTitle: #if there's an in-document title, delete it from appearing in the document body
-		inputFile = "".join(fileContentsAsLines[2:])
-	else:
-		inputFile = "".join(fileContentsAsLines)
-#----------------converted to here
+	fileContents = open("../temp/"+x,'r')
+	asLines = fileContents.readlines()
+	fileContents.close()
 	
-	#HERE is where we can do the final pre-processing before passing the resulting mdfile to pandoc
-	#inputFile="$(../rendering/finalPreprocessor.py "$(echo "$inputFile")" )"
+	if inDocTitle: #if there's an in-document title, delete it from appearing in the document body
+		inputFile = "".join(asLines[2:])
+	else:
+		inputFile = "".join(asLines)
+	
+	#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
+	inputFile = preProcess(inputFile)
+	
+	args='pandoc -M title="'+title+'" -c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
+	#print args
+	yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
+	yum.communicate(inputFile)
+	#inputFyl.close()
 	
 	#echo "$inputFile" | pandoc -M title="$title" -B ../rendering/tagEntries.html\
 	#	-c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s\
