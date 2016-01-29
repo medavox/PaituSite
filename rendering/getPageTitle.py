@@ -24,7 +24,10 @@ def getTitle(filename):
 	contents = openMd.readline() + openMd.readline() #get first two lines as a str; basically head -n 2
 	#print contents
 	pat = re.compile('^(.+)\n===+$', re.MULTILINE)
+	pat2 = re.compile('^# (.+)$', re.MULTILINE)
 	suche = pat.search(contents)
+	if suche == None:
+		suche = pat2.search(contents)
 	#print suche
 	if not suche == None:
 		return suche.group(1)

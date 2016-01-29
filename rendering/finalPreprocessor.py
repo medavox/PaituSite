@@ -22,6 +22,7 @@ such as:
 * making internal links work (todo)
 """
 def includer(matchObj):
+	#print "includer"
 	includingFileName = matchObj.group(1)
 	#print "found file name:"+includingFileName
 	openedFile = open(includingFileName, 'r')
@@ -46,23 +47,40 @@ def tagLister(matchObj):
 	#tagfoot += "</p>"
 	return tagfoot+"\n"
 
+#def internalLinker(matchObj):
+	#print "LINKA!"
+	#group(0) #the whole match: [case-insensitive internal link](chat bOt project)
+	#print matchObj.group(1) #[case-insensitive internal link](
+	#print matchObj.group(2) #<the path before the filename in the link 'url'>
+	#print matchObj.group(3) #chat bOt project
+#	out = matchObj.group(1)
+	
+#	if matchObj.group(2) is str:
+#		out += matchObj.group(2)
+	
+#	linkName = matchObj.group(3).lower().replace(' ', '_')
+	
+#	return out +linkName+".html)"+"LINKA!GROVE!"
+	
 def internalLinker(matchObj):
+	#print "LINKA!"
 	#group(0) #the whole match: [case-insensitive internal link](chat bOt project)
 	#print matchObj.group(1) #[case-insensitive internal link](
 	#print matchObj.group(2) #<the path before the filename in the link 'url'>
 	#print matchObj.group(3) #chat bOt project
 	out = matchObj.group(1)
 	
-	if matchObj.group(2) is str:
-		out += matchObj.group(2)
+	linkName = matchObj.group(2).lower().replace(' ', '_')
 	
-	return out + matchObj.group(3).lower().replace(' ', '_')+".html)"
+	return out +linkName+".html)"#+"LINKA!GROVE!"
 	
 
 conversionRules = \
 [(r"^%tags?: ?([^,]+(,[^,]+)*)$", 						tagLister),			#handle tag list
-(r"(\[[^\]\n]+\]\((?!https?:/)/?([^/]+/)*)([^./]*)\)", 	internalLinker),	#handle internal links TODO
-#(r"^<a:([a-zA-Z0-9 _-?!,.]+)>",							r"<a name=\"\1\"></a>"),#expand shortened anchor syntax to full html
+#(r"(\[[^\]\n]+?\]\((?!https?:/)/?([^/]+/)*)([^./]*)\)", internalLinker),	#handle internal links TODO
+#(r"(\[[^\]\n]+\]\()(?<!http:/)/?([^/]+/)*([^./]+)\)", internalLinker),	#handle internal links TODO
+ (r"(\[[^\]\n]+\]\()([\w ]+)\)", 						internalLinker),
+#(r"^<a:([a-zA-Z0-9 _-?!,.]+)>",						r"<a name=\"\1\"></a>"),#expand shortened anchor syntax to full html
 (r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#handle includes
 #(r"^```([a-zA-Z0-9.#+-]+)$.+^```$",					syntaxHylyter)]		#syntax highlighter OBSOLETE?
 
