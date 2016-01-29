@@ -1,32 +1,16 @@
 #!/usr/bin/python
 import re,sys,os,os.path,subprocess,tempfile,time
-from tweaks import preProcess
-from inspect import dumpObj
-#
+from preprocessing import preProcess
+
+docsDir = "../articles"
+
 fileChanged = False
-titles = dict()
+titlesDict = dict()
+tagDict = dict()
 
 def guaranteeFolder(folderName):
 	if not os.path.isdir(folderName):
 		os.mkdir(folderName, 0744)
-
-"""
-Creates a page for each tag, with links to each article with that tag.
-Tags are found by checking all articles
-"""
-tagDict = dict()
-
-def getTags(filename):
-	openfile = open(filename, 'r')
-	contents = openfile.read()
-	pat = re.compile(r"^%tags?: ?([^,]+(,[^,]+)*)$")
-	retlist = []
-	for mo in pat.finditer(contents, re.M):
-		rawTags = mo.group(1)
-		pat = re.compile(' ?, ?') #remove any spaces before or after the separating comma; but keep tag-internal spaces
-		cleanedCommas = pat.sub( ',', rawTags)
-		retlist = retlist + cleanedCommas.split(',')
-	return retlist
 
 """
 returns the derived title of a given mdfile, whether from its markdown title, or its file name.
@@ -37,11 +21,11 @@ def getTitle(filename):
 	contents = openMd.readline() + openMd.readline() #get first two lines as a str; basically head -n 2
 	#print contents
 	pat = re.compile('^(.+)\n===+$', re.MULTILINE)
-	pat2 = re.compile('^# ?(.+)$', re.MULTILINE)
 	suche = pat.search(contents)
-	if suche == None:
+	if suche == None: # if it's not the normal-style header, try the hash one
+		pat2 = re.compile('^# ?(.+)$', re.MULTILINE)
 		suche = pat2.search(contents)
-	#print suche
+
 	if suche == None:
 		nopath = filename.split("/")[-1]
 		if nopath.endswith(".md"):
@@ -51,13 +35,33 @@ def getTitle(filename):
 	else: #if the article text contains no discernible title, use the file name
 		return (suche.group(1), True)
 
+"""
+Creates a page for each tag, with links to each article with that tag.
+Tags are found by checking all articles
+"""
+def getTags(filename):
+	openfile = open(filename, 'r')
+	contents = openfile.read()
+	openfile.close()
+	pat = re.compile(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", re.M)
+	retlist = []
+	for mo in pat.finditer(contents):
+	#for mo in pat.sub(contents, re.M):
+		rawTags = mo.group(1)
+		pat = re.compile(' ?, ?') #remove any spaces before or after the separating comma; but keep tag-internal spaces
+		cleanedCommas = pat.sub( ',', rawTags)
+		retlist = retlist + cleanedCommas.split(',')
+		#print filename+":"+str(retlist)
+	return retlist
+
 #generate navbar links to tag pages, as an add-in snippet
 #generate the markdown for tag pages
 def parseTags(nope):
 	#from %tags, create a global one-to-many associative array (dictionary) of tags to pages
-	for f in os.listdir("../articles"):
-		if f[-3:] == '.md':
-			tagList = getTags("../articles/"+f)
+	for f in os.listdir(docsDir):
+		if f.endswith('.md'):
+			tagList = getTags(docsDir+"/"+f)
+			#print "tags found:"+str(len(tagList))
 			#print f+":"+str(type(tagList))
 			if type(tagList) is list:
 				for tag in tagList:
@@ -78,22 +82,22 @@ def parseTags(nope):
 	#		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
 		tagPage = open('../temp/'+tag.replace(' ', '_').lower()+'.md', 'w')
 		#tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
+		print tag+":"
 		for page in tagDict[tag]:
 			link = page.lower().replace(' ', '_')[:-3]+".html"
-			title = getTitle("../articles/"+page)
+			title = getTitle(docsDir+"/"+page)[0]
 			tagPage.write("* ["+title+"]("+link+")\n")
-			print tag+":"
+			
 			print "\t\""+title+"\" at "+link
 		tagPage.close()
 	#tagEntries.close()
 
 #--------------------begin!
 
-for liveFile in os.listdir("../articles"):
+for liveFile in os.listdir(docsDir):
 	if liveFile.endswith(".md"):
 		cleanedName = liveFile.lower().replace(' ', '_') #replace spaces with underscores in filenames; make the name lowercase as well
 		
-		#print dift
 		exists = os.path.exists("../lastinput/"+cleanedName) #and os.path.isfile("../lastinput/"+cleanedName)
 		if exists:
 			dift = subprocess.call(["diff", "-q", "-N", liveFile, "../lastinput/"+cleanedName])
@@ -106,13 +110,14 @@ for liveFile in os.listdir("../articles"):
 
 			guaranteeFolder("../temp")
 			
-			print "copying "+liveFile+" to ../temp/"+cleanedName
-			subprocess.call(["cp", "../articles/"+liveFile, "../temp/"+cleanedName]) # copy changed files to ../temp/ for rendering, in the next loop
+			#print "copying "+liveFile+" to ../temp/"+cleanedName
+			subprocess.call(["cp", docsDir+"/"+liveFile, "../temp/"+cleanedName]) # copy changed files to ../temp/ for rendering, in the next loop
 
 			#add derived title to a bash associative array for use by pandoc later
-			tytle = getTitle("../articles/"+liveFile)
-			titles[cleanedName] = tytle
+			tytl = getTitle(docsDir+"/"+liveFile)
+			titlesDict[cleanedName] = tytl
 
+print "filechanged:"+str(fileChanged)
 
 #todo: need to regenerate tags into bash dictionary once tagpage mdfiles have been generated
 if fileChanged: #if any files have changed, regenerate the tags
@@ -124,34 +129,33 @@ guaranteeFolder("../lastinput")
 
 for x in os.listdir("../temp"):
 	if x.endswith(".md"):
-		print "rendering "+x+" to "+x[:-2]+"html"
+		if x in titlesDict:
+			inDocTitle = titlesDict[x][1]
+			title = titlesDict[x][0]
+		else:
+			titleTuple = getTitle("../temp/"+x)
+			title = titleTuple[0]
+			inDocTitle = titleTuple[1]
+		#print "rendering "+x+" to "+x[:-2]+"html"
+		#print "titlesDict entry:"+str(titlesDict[x])
 	
-	inDocTitle = titles[x][1]
-	title=titles[x][0]
+		print "title is "+title
+		
+		with open("../temp/"+x,'r') as fileContents:
+			asLines = fileContents.readlines()
+		
+		if inDocTitle: #if there's an in-document title, delete it from appearing in the document body
+			inputFile = "".join(asLines[2:])
+		else:
+			inputFile = "".join(asLines)
+		
+		#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
+		inputFile = preProcess(inputFile)
+
+		args='pandoc -M title="'+title+'" -c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
+		#print args
+		yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
+		yum.communicate(inputFile)
 	
-	print "title is "+title
-	
-	fileContents = open("../temp/"+x,'r')
-	asLines = fileContents.readlines()
-	fileContents.close()
-	
-	if inDocTitle: #if there's an in-document title, delete it from appearing in the document body
-		inputFile = "".join(asLines[2:])
-	else:
-		inputFile = "".join(asLines)
-	
-	#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
-	inputFile = preProcess(inputFile)
-	
-	args='pandoc -M title="'+title+'" -c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
-	#print args
-	yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
-	yum.communicate(inputFile)
-	#inputFyl.close()
-	
-	#echo "$inputFile" | pandoc -M title="$title" -B ../rendering/tagEntries.html\
-	#	-c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s\
-	#	-r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/${x%md}html
-	#remember the pandoc --toc argument
 
 	#mv "$x" "../lastinput/$x"
