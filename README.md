@@ -27,7 +27,7 @@ Features
 	- usage: `%include path/to/file.ext` on its own line. Files must have an extension, because otherwise they'd appear too dodgy for the internet
 * Link between different pages on blog
 * Syntax highlighting of `%include`d source code files
-
+* Nicer anchor links support (less html-y, more pandocish) than standard markdown
 
 ###still to come:
 
@@ -59,7 +59,6 @@ Just upload/update your Markdown files in mdfiles/ (via SSH/rsync?), then run re
 
 Longer Term:
 ------------
-* Syntax highlighter for arbitrary source code
 * what to put in sidebar?
 	- Tag List
 	- About/Links (to my github, SO etc)

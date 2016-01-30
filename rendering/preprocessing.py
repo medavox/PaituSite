@@ -68,8 +68,8 @@ def internalLinker(matchObj):
 conversionRules = \
 [(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", 				tagLister),			#handle tag list
  (r"(\[[^\]\n]+\]\()([\w _-]+)\)", 						internalLinker), 	#handle internal links
-#(r"^<a:([a-zA-Z0-9 _-?!,.]+)>",						r"<a name=\"\1\"></a>"),#expand shortened anchor syntax to full html # TODO
-(r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#handle includes
+ (r"^<a:([\w-]+)>",										r'<a name="\1"></a>'),#expand shortened anchor syntax to full html # TODO
+ (r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#handle includes
 #(r"^```([a-zA-Z0-9.#+-]+)$.+^```$",					syntaxHylyter)]		#syntax highlighter OBSOLETE?
 
 #pandoc has its own syntax highlighter (kate?), but it doesn't recognise AHK, or provide line numbering

@@ -1,12 +1,15 @@
 #!/usr/bin/python
 import re,sys,os,os.path,subprocess,tempfile,time
 from preprocessing import preProcess, cleanTitle
+from operator import itemgetter
 
 docsDir = "../articles"
 
-fileChanged = False
+filesChanged = False
 titlesDict = dict()
 tagDict = dict()
+
+tagPageTitlePrefix = "Pages Tagged '"
 
 def guaranteeFolder(folderName):
 	if not os.path.isdir(folderName):
@@ -58,31 +61,45 @@ def getTags(filename):
 #generate navbar links to tag pages, as an add-in snippet
 #generate the markdown for tag pages
 def parseTags(nope):
+	notags = []
 	#from %tags, create a global one-to-many associative array (dictionary) of tags to pages
 	for f in os.listdir(docsDir):
 		if f.endswith('.md'):
 			tagList = getTags(docsDir+"/"+f)
 			#print "tags found:"+str(len(tagList))
 			#print f+":"+str(type(tagList))
-			if type(tagList) is list:
+			if len(tagList) > 0:
 				for tag in tagList:
 					if tag in tagDict:
 						tagDict[tag].append(f)#add this file's name to listvalue of this tagkey
 					else: #initialise this tagkey with a new list containing this filename
 						tagDict[tag] = [f]
+			else:
+				print "UNTAGGED: "+f
+				notags.append(f)
+				
+				
 	allTags = open('../temp/all_tags.md', 'w')
-	allTags.write("# All Tags\n\n")
+	allTags.write("# All Tags\n\ntag | articles\n----|------\n") #tags as table
+	
+	untagged = open('../temp/untagged_articles.md', 'w')
+	untagged.write("# Untagged Articles\n\n")
+	
+	for page in notags:
+		untagged.write("* ["+getTitle("../articles/"+page)[0]+"]("+cleanTitle(page)[:-2]+"html)\n")
 	
 	#create a page for every tag found in all the articles.
 	#on that page, add a link to every article with that tag
 	for tag in tagDict.keys():
 		#consider sorting tags before printing
-	#	linkUrl = ""+tag
-		allTags.write("* "+tag+"\n")
-	#	tagEntries.write('\n\t\t\t\t\t<li class=\"pure-menu-item\">\n\t\t\t\t\t\t<a href=\"'+linkUrl+
-	#		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
+		#sorted(tagDict, key=itemgetter(len(tagDict[tag])), reverse=True)
+		#articlesPerTag.append((tag, len(tagDict[tag])))
+		#allTags.write("* ["+tag+"]("+cleanTitle(tag)+".html): "+str(len(tagDict[tag]))+" articles\n")#as bulleted list
+		
+		allTags.write("["+tag+"]("+cleanTitle(tag)+".html) | "+str(len(tagDict[tag]))+"\n")#tags as table
+		
 		tagPage = open('../temp/'+cleanTitle(tag)+'.md', 'w')
-		tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
+		tagPage.write(tagPageTitlePrefix+tag+"'\n===\n\n") # write page title
 		padding = "                "[len(tag):]
 		print tag+":"+padding+str(len(tagDict[tag]))+" articles"
 		for page in tagDict[tag]:
@@ -92,24 +109,26 @@ def parseTags(nope):
 			
 			#print "\t\""+title+"\" at "+link
 		tagPage.close()
-	#tagEntries.close()
+	allTags.close()
 
 #--------------------begin!
-
 for liveFile in os.listdir(docsDir):
 	if liveFile.endswith(".md") or liveFile.endswith(".list"):
+		thisFileChanged = False
 		cleanedName = cleanTitle(liveFile) #replace spaces with underscores in filenames; make the name lowercase as well
 		
 		exists = os.path.exists("../lastinput/"+cleanedName) #and os.path.isfile("../lastinput/"+cleanedName)
 		if exists:
-			dift = subprocess.call(["diff", "-q", liveFile, "../lastinput/"+cleanedName])
-			fileChanged = dift != 0
+			dift = subprocess.call(["diff", "-q", docsDir+"/"+liveFile, "../lastinput/"+cleanedName])
+			if dift != 0:
+				filesChanged = True
+				thisFileChanged = True
 		else: # if there's no copy of this file in ../lastinput, then it has changed by definition
-			fileChanged = True
+			filesChanged = True
+			thisFileChanged = True
 		
-		if fileChanged: # if working copy in ../mdfiles/ differs from last rendered version in ../lastinput/
+		if thisFileChanged: # if working copy in ../mdfiles/ differs from last rendered version in ../lastinput/
 			#print ""+liveFile+" HAS CHANGED!"
-
 			guaranteeFolder("../temp")
 			
 			#print "copying "+liveFile+" to ../temp/"+cleanedName
@@ -118,16 +137,16 @@ for liveFile in os.listdir(docsDir):
 			#add derived title to a bash associative array for use by pandoc later
 			tytl = getTitle(docsDir+"/"+liveFile)
 			titlesDict[cleanedName] = tytl
+#fileChanged=True	#debug statement
 
-print "filechanged:"+str(fileChanged)
+print "fileschanged:"+str(filesChanged)
 
 #todo: need to regenerate tags into bash dictionary once tagpage mdfiles have been generated
-if fileChanged: #if any files have changed, regenerate the tags
+if filesChanged: #if any files have changed, regenerate the tags
 	parseTags(None)	#regenerate tag pages
 
 guaranteeFolder("../html")
 guaranteeFolder("../lastinput")
-	
 
 for x in os.listdir("../temp"):
 	if x.endswith(".md"):
@@ -142,7 +161,7 @@ for x in os.listdir("../temp"):
 		#print "titlesDict entry:"+str(titlesDict[x])
 	
 		padding = "                        "[len(x):]
-		print ""+x+":"+padding+"\""+x+title+"\""
+		print ""+x+":"+padding+"\""+title+"\""
 		
 		with open("../temp/"+x,'r') as fileContents:
 			asLines = fileContents.readlines()
@@ -155,15 +174,20 @@ for x in os.listdir("../temp"):
 		#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
 		inputFile = preProcess(inputFile)
 
-		args='pandoc -M title="'+title+'" -c style/style.css -c style/side-menu.css --template=../rendering/template.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
+		args='pandoc -M title="'+title+'" -c style/style.css -c style/side-menu.css --template=../rendering/template.html -B ../rendering/sidebar.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
 		#print args
 		yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
 		yum.communicate(inputFile)
 	
 	elif x.endswith(".list"): # TODO
 		pass
-	#move the file we worked on into lastinput/ for comparison with the copy in articles/ during the next run
-	subprocess.call(["mv", "../temp/"+x, "../lastinput/"+x])
+	
+	if asLines[0].startswith(tagPageTitlePrefix):#this file is a tag page, don't copy it to lastinput
+		#print x+" is a tag page"
+		subprocess.call(["rm", "../temp/"+x])
+	else:#move the file we worked on into lastinput/ for comparison with the copy in articles/ during the next run
+		#print x+" is NOT a tag page"
+		subprocess.call(["mv", "../temp/"+x, "../lastinput/"+x])
 	
 	#copy the stylesheets into somewhere nginx can reach them
 	subprocess.call(["cp", "-R", "../style", "../html/"])
