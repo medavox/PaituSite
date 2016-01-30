@@ -15,7 +15,7 @@ def guaranteeFolder(folderName):
 def cleanTitle(title):
 	extension = title[title.rfind("."):]
 	workingTitle = title[:title.rfind(".")].lower().replace(' ', '_') #har har har
-	output = re.sub(r"[^a-z0-9 -]", "", workingTitle)
+	output = re.sub(r"[^a-z0-9 _-]", "", workingTitle)
 	
 	return output+extension
 
@@ -88,7 +88,7 @@ def parseTags(nope):
 	#	tagEntries.write('\n\t\t\t\t\t<li class=\"pure-menu-item\">\n\t\t\t\t\t\t<a href=\"'+linkUrl+
 	#		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
 		tagPage = open('../temp/'+cleanTitle(tag)+'.md', 'w')
-		#tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
+		tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
 		print tag+":"
 		for page in tagDict[tag]:
 			link = cleanTitle(page)[:-3]+".html"
@@ -102,7 +102,7 @@ def parseTags(nope):
 #--------------------begin!
 
 for liveFile in os.listdir(docsDir):
-	if liveFile.endswith(".md"):
+	if liveFile.endswith(".md") or liveFile.endswith(".list"):
 		cleanedName = cleanTitle(liveFile) #replace spaces with underscores in filenames; make the name lowercase as well
 		
 		exists = os.path.exists("../lastinput/"+cleanedName) #and os.path.isfile("../lastinput/"+cleanedName)
@@ -146,7 +146,8 @@ for x in os.listdir("../temp"):
 		#print "rendering "+x+" to "+x[:-2]+"html"
 		#print "titlesDict entry:"+str(titlesDict[x])
 	
-		print "title is "+title
+		padding = "                    "[len(x):]
+		print "filename: "+x+padding+"title is "+title
 		
 		with open("../temp/"+x,'r') as fileContents:
 			asLines = fileContents.readlines()
@@ -158,13 +159,13 @@ for x in os.listdir("../temp"):
 		
 		#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
 		inputFile = preProcess(inputFile)
-		
-		print "inputFile length:"+str(len(inputFile))
 
 		args='pandoc -M title="'+title+'" -c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
 		#print args
 		yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
 		yum.communicate(inputFile)
 	
-
-	#mv "$x" "../lastinput/$x"
+	elif x.endswith(".list"): # TODO
+		pass
+	#move the file we worked on into lastinput/ for comparison with the copy in articles/ during the next run
+	subprocess.call(["mv", "../temp/"+x, "../lastinput/"+x])
