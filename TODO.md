@@ -10,7 +10,7 @@ TODO
 	- indentation of lists can work with tabs/spaces of lines
 * In rendered page, put labelled box around `%include`d code, with a download link (the filename)
 	- also insert language next to markdown code fence, if detectable
-* fix the fact that stripping out tags will mean the lastinput and mdfiles versions are always different
+* Find a way to only copy the article .md files (and not the generated ones like tagpages) from temp/ into lastinput/
 * Date page written, and/or date last updated
 * Multiple Author support?
 * put generated tag pages in their own directory?

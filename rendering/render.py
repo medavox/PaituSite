@@ -48,7 +48,6 @@ def getTags(filename):
 	pat = re.compile(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", re.M)
 	retlist = []
 	for mo in pat.finditer(contents):
-	#for mo in pat.sub(contents, re.M):
 		rawTags = mo.group(1)
 		pat = re.compile(' ?, ?') #remove any spaces before or after the separating comma; but keep tag-internal spaces
 		cleanedCommas = pat.sub( ',', rawTags)
@@ -71,15 +70,15 @@ def parseTags(nope):
 						tagDict[tag].append(f)#add this file's name to listvalue of this tagkey
 					else: #initialise this tagkey with a new list containing this filename
 						tagDict[tag] = [f]
-	#tagEntries = open('../temp/all_tags.html', 'w')
-	#tagEntries.write("# All Tags\n")
+	allTags = open('../temp/all_tags.md', 'w')
+	allTags.write("# All Tags\n\n")
 	
 	#create a page for every tag found in all the articles.
 	#on that page, add a link to every article with that tag
 	for tag in tagDict.keys():
 		#consider sorting tags before printing
 	#	linkUrl = ""+tag
-	#	tagEntries.write("* "+tag+"\n")
+		allTags.write("* "+tag+"\n")
 	#	tagEntries.write('\n\t\t\t\t\t<li class=\"pure-menu-item\">\n\t\t\t\t\t\t<a href=\"'+linkUrl+
 	#		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
 		tagPage = open('../temp/'+cleanTitle(tag)+'.md', 'w')
@@ -103,7 +102,7 @@ for liveFile in os.listdir(docsDir):
 		
 		exists = os.path.exists("../lastinput/"+cleanedName) #and os.path.isfile("../lastinput/"+cleanedName)
 		if exists:
-			dift = subprocess.call(["diff", "-q", "-N", liveFile, "../lastinput/"+cleanedName])
+			dift = subprocess.call(["diff", "-q", liveFile, "../lastinput/"+cleanedName])
 			fileChanged = dift != 0
 		else: # if there's no copy of this file in ../lastinput, then it has changed by definition
 			fileChanged = True
