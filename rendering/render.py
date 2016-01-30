@@ -89,13 +89,14 @@ def parseTags(nope):
 	#		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
 		tagPage = open('../temp/'+cleanTitle(tag)+'.md', 'w')
 		tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
-		print tag+":"
+		padding = "                "[len(tag):]
+		print tag+":"+padding+str(len(tagDict[tag]))+" articles"
 		for page in tagDict[tag]:
 			link = cleanTitle(page)[:-3]+".html"
 			title = getTitle(docsDir+"/"+page)[0]
 			tagPage.write("* ["+title+"]("+link+")\n")
 			
-			print "\t\""+title+"\" at "+link
+			#print "\t\""+title+"\" at "+link
 		tagPage.close()
 	#tagEntries.close()
 
@@ -146,8 +147,8 @@ for x in os.listdir("../temp"):
 		#print "rendering "+x+" to "+x[:-2]+"html"
 		#print "titlesDict entry:"+str(titlesDict[x])
 	
-		padding = "                    "[len(x):]
-		print "\""+x+"\":"+padding+title
+		padding = "                        "[len(x):]
+		print ""+x+":"+padding+"\""+x+title+"\""
 		
 		with open("../temp/"+x,'r') as fileContents:
 			asLines = fileContents.readlines()
@@ -160,7 +161,7 @@ for x in os.listdir("../temp"):
 		#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
 		inputFile = preProcess(inputFile)
 
-		args='pandoc -M title="'+title+'" -c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
+		args='pandoc -M title="'+title+'" -c style/style.css -c style/side-menu.css --template=../rendering/template.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
 		#print args
 		yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
 		yum.communicate(inputFile)
@@ -169,3 +170,6 @@ for x in os.listdir("../temp"):
 		pass
 	#move the file we worked on into lastinput/ for comparison with the copy in articles/ during the next run
 	subprocess.call(["mv", "../temp/"+x, "../lastinput/"+x])
+	
+	#copy the stylesheets into somewhere nginx can reach them
+	subprocess.call(["cp", "-R", "../style", "../html/"])
