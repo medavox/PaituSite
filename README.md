@@ -27,7 +27,7 @@ Features
 	- usage: `%include path/to/file.ext` on its own line. Files must have an extension, because otherwise they'd appear too dodgy for the internet
 * Link between different pages on blog
 * Syntax highlighting of `%include`d source code files
-* Nicer anchor links support (less html-y, more markdownish) than standard markdown
+
 
 ###still to come:
 
@@ -65,43 +65,5 @@ Longer Term:
 	- About/Links (to my github, SO etc)
 	- Other Blogs
 
-TODO
-----
-* Reimplement generation of a page listing all tags, and also untagged pages
-* create new `.list` file format, where each line is a bullet point
-	- titles are either a line surrounded by blank lines (or the beginning of the file),
-	- or the first item in a list of lines
-	- indentation of lists can work with tabs/spaces of lines
-* In rendered page, put labelled box around `%include`d code, with a download link (the filename)
-	- also insert language next to markdown code fence, if detectable
-* fix the fact that stripping out tags will mean the lastinput and mdfiles versions are always different
-* Date page written, and/or date last updated
-* Multiple Author support?
-* put generated tag pages in their own directory?
-* clean up the messy collab between bash and python
-	- replace all bash usage with python? problems:
-		* head, tail, diff
-		* calling pandoc
-		* moving, copying & removing files
-	- replace 2nd phase of render.sh with python?
-		* same
-
-Only activate syntax highlighting inside fenced blocks with a named language, eg:
-
-
-	```java
-
-	public class Foo
-	{
-	...
-	}
-	```
-
-
-DONE
-----
-* The tags (if any) a page has are added as a list of links to the bottom of that page
-* Clickable list of articles with a given tag
-* special `%include` directive, to include the contents of a file inside the rendered copy of another
 
 %tags: readme

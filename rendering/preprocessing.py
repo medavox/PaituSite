@@ -1,6 +1,16 @@
 #!/usr/bin/python
 import re, sys
 
+"""
+handles any remaining in-place article substitutions, before sending to pandoc.
+
+such as:
+
+* the %include command,
+* making internal links work
+* converting the %tag command into a valid markdown list of links to tagpages
+"""
+
 #handle includes regexplanation:
 # at the beginning of a line: 0 or more of: (1 or more non-slashes followed by a slash),
 # followed by 0 or more nonslashes (the filename),
@@ -10,20 +20,18 @@ import re, sys
 
 tagDict = dict()
 
+"""
+this needs to be here (instead of in render.py, where it is used more),
+because preprocessor.py can't import functions from render.py;
+i think something about python prohibiting imports happening both ways between files
+"""
 def cleanTitle(title):
 	extension = title[title.rfind("."):]
 	workingTitle = title[:title.rfind(".")].lower().replace(' ', '_') #har har har
 	output = re.sub(r"[^a-z0-9 _-]", "", workingTitle)
 	return output+extension
 
-"""
-handles any remaining in-place article substitutions, before sending to pandoc.
 
-such as:
-
-* the %include command,
-* making internal links work (todo)
-"""
 def includer(matchObj):
 	#print "includer"
 	includingFileName = matchObj.group(1)
@@ -70,7 +78,6 @@ conversionRules = \
 detects markdown links to other local articles, and sticks a .html on the end,
 so rendered articles can link to other rendered articles
 """
-
 def preProcess(inFile):
 	#outFile = sys.argv[1]
 	outFile = inFile
