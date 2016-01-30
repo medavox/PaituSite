@@ -10,7 +10,7 @@ tagDict = dict()
 
 def guaranteeFolder(folderName):
 	if not os.path.isdir(folderName):
-		os.mkdir(folderName, 0744)
+		os.mkdir(folderName, 0755)
 
 def cleanTitle(title):
 	extension = title[title.rfind("."):]
