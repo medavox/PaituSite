@@ -25,7 +25,7 @@ def includer(matchObj):
 	#print "includer"
 	includingFileName = matchObj.group(1)
 	#print "found file name:"+includingFileName
-	openedFile = open(includingFileName, 'r')
+	openedFile = open("../articles/"+includingFileName, 'r')
 	return openedFile.read()
 
 """
