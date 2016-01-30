@@ -67,6 +67,11 @@ Longer Term:
 
 TODO
 ----
+* Reimplement generation of a page listing all tags, and also untagged pages
+* create new `.list` file format, where each line is a bullet point
+	- titles are either a line surrounded by blank lines (or the beginning of the file),
+	- or the first item in a list of lines
+	- indentation of lists can work with tabs/spaces of lines
 * In rendered page, put labelled box around `%include`d code, with a download link (the filename)
 	- also insert language next to markdown code fence, if detectable
 * fix the fact that stripping out tags will mean the lastinput and mdfiles versions are always different

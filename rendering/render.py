@@ -12,6 +12,13 @@ def guaranteeFolder(folderName):
 	if not os.path.isdir(folderName):
 		os.mkdir(folderName, 0744)
 
+def cleanTitle(title):
+	extension = title[title.rfind("."):]
+	workingTitle = title[:title.rfind(".")].lower().replace(' ', '_') #har har har
+	output = re.sub(r"[^a-z0-9 -]", "", workingTitle)
+	
+	return output+extension
+
 """
 returns the derived title of a given mdfile, whether from its markdown title, or its file name.
 works in both python and bash.
@@ -80,11 +87,11 @@ def parseTags(nope):
 	#	tagEntries.write("* "+tag+"\n")
 	#	tagEntries.write('\n\t\t\t\t\t<li class=\"pure-menu-item\">\n\t\t\t\t\t\t<a href=\"'+linkUrl+
 	#		'" class="pure-menu-link">'+tag+'</a>\n\t\t\t\t\t</li>')
-		tagPage = open('../temp/'+tag.replace(' ', '_').lower()+'.md', 'w')
+		tagPage = open('../temp/'+cleanTitle(tag)+'.md', 'w')
 		#tagPage.write("Pages Tagged '"+tag+"'\n===\n\n") # write page title
 		print tag+":"
 		for page in tagDict[tag]:
-			link = page.lower().replace(' ', '_')[:-3]+".html"
+			link = cleanTitle(page)[:-3]+".html"
 			title = getTitle(docsDir+"/"+page)[0]
 			tagPage.write("* ["+title+"]("+link+")\n")
 			
@@ -96,7 +103,7 @@ def parseTags(nope):
 
 for liveFile in os.listdir(docsDir):
 	if liveFile.endswith(".md"):
-		cleanedName = liveFile.lower().replace(' ', '_') #replace spaces with underscores in filenames; make the name lowercase as well
+		cleanedName = cleanTitle(liveFile) #replace spaces with underscores in filenames; make the name lowercase as well
 		
 		exists = os.path.exists("../lastinput/"+cleanedName) #and os.path.isfile("../lastinput/"+cleanedName)
 		if exists:
