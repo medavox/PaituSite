@@ -147,7 +147,7 @@ for x in os.listdir("../temp"):
 		#print "titlesDict entry:"+str(titlesDict[x])
 	
 		padding = "                    "[len(x):]
-		print "filename: "+x+padding+"title is "+title
+		print "\""+x+"\":"+padding+title
 		
 		with open("../temp/"+x,'r') as fileContents:
 			asLines = fileContents.readlines()
