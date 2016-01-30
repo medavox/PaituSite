@@ -158,6 +158,8 @@ for x in os.listdir("../temp"):
 		
 		#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
 		inputFile = preProcess(inputFile)
+		
+		print "inputFile length:"+str(len(inputFile))
 
 		args='pandoc -M title="'+title+'" -c ../style/style.css -c ../style/side-menu.css --template=../rendering/template.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
 		#print args
