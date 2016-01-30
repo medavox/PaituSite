@@ -8,10 +8,13 @@ import re, sys
 # extensionless files are not supported, because they usually don't show up on the internet,
 # and if they did, they would seem suspicious anyway
 
-#taglistpat = re.compile(r"^%tags?: ?([^,\n]+(,[^,\n])*)$", re.MULTILINE)
-	#linkpat = re.compile('(\[.+\]\()((?!http://)[^/])\)')
-
 tagDict = dict()
+
+def cleanTitle(title):
+	extension = title[title.rfind("."):]
+	workingTitle = title[:title.rfind(".")].lower().replace(' ', '_') #har har har
+	output = re.sub(r"[^a-z0-9 _-]", "", workingTitle)
+	return output+extension
 
 """
 handles any remaining in-place article substitutions, before sending to pandoc.
@@ -42,47 +45,26 @@ def tagLister(matchObj):
 	#tagfoot = "<p>Tagged as: " # html-output version
 	tagfoot = "\n\nTagged as: " # markdown-output
 	for tag in cleanedCommas.split(','):
-		#tagfoot += "<a href="+tag.replace(' ', "%20")+".html>"+tag+"</a> " # html
-		tagfoot += "["+tag+"]("+tag.replace(' ', "_").lower() + ".html) " # markdown
-	#tagfoot += "</p>"
+		tagfoot += "["+tag+"]("+cleanTitle(tag) + ".html) " # markdown
 	return tagfoot+"\n"
 
-#def internalLinker(matchObj):
-	#print "LINKA!"
-	#group(0) #the whole match: [case-insensitive internal link](chat bOt project)
-	#print matchObj.group(1) #[case-insensitive internal link](
-	#print matchObj.group(2) #<the path before the filename in the link 'url'>
-	#print matchObj.group(3) #chat bOt project
-#	out = matchObj.group(1)
-	
-#	if matchObj.group(2) is str:
-#		out += matchObj.group(2)
-	
-#	linkName = matchObj.group(3).lower().replace(' ', '_')
-	
-#	return out +linkName+".html)"+"LINKA!GROVE!"
-	
 def internalLinker(matchObj):
-	#print "LINKA!"
-	#group(0) #the whole match: [case-insensitive internal link](chat bOt project)
 	#print matchObj.group(1) #[case-insensitive internal link](
 	#print matchObj.group(2) #<the path before the filename in the link 'url'>
 	#print matchObj.group(3) #chat bOt project
 	out = matchObj.group(1)
-	
 	linkName = matchObj.group(2).lower().replace(' ', '_')
-	
 	return out +linkName+".html)"#+"LINKA!GROVE!"
 	
 
 conversionRules = \
 [(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", 				tagLister),			#handle tag list
-#(r"(\[[^\]\n]+?\]\((?!https?:/)/?([^/]+/)*)([^./]*)\)", internalLinker),	#handle internal links TODO
-#(r"(\[[^\]\n]+\]\()(?<!http:/)/?([^/]+/)*([^./]+)\)", internalLinker),	#handle internal links TODO
- (r"(\[[^\]\n]+\]\()([\w _-]+)\)", 						internalLinker),
-#(r"^<a:([a-zA-Z0-9 _-?!,.]+)>",						r"<a name=\"\1\"></a>"),#expand shortened anchor syntax to full html
+ (r"(\[[^\]\n]+\]\()([\w _-]+)\)", 						internalLinker), 	#handle internal links
+#(r"^<a:([a-zA-Z0-9 _-?!,.]+)>",						r"<a name=\"\1\"></a>"),#expand shortened anchor syntax to full html # TODO
 (r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#handle includes
 #(r"^```([a-zA-Z0-9.#+-]+)$.+^```$",					syntaxHylyter)]		#syntax highlighter OBSOLETE?
+
+#pandoc has its own syntax highlighter (kate?), but it doesn't recognise AHK, or provide line numbering
 
 """
 detects markdown links to other local articles, and sticks a .html on the end,

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import re,sys,os,os.path,subprocess,tempfile,time
-from preprocessing import preProcess
+from preprocessing import preProcess, cleanTitle
 
 docsDir = "../articles"
 
@@ -12,12 +12,7 @@ def guaranteeFolder(folderName):
 	if not os.path.isdir(folderName):
 		os.mkdir(folderName, 0755)
 
-def cleanTitle(title):
-	extension = title[title.rfind("."):]
-	workingTitle = title[:title.rfind(".")].lower().replace(' ', '_') #har har har
-	output = re.sub(r"[^a-z0-9 _-]", "", workingTitle)
-	
-	return output+extension
+
 
 """
 returns the derived title of a given mdfile, whether from its markdown title, or its file name.
