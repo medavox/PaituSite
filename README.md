@@ -43,7 +43,6 @@ Posts will be:-
 -----------
 
 * Pandoc for the markdown-to-HTML rendering
-* SOON: Pygments for code syntax highlighting!
 * PureCSS for the responsive stuff & sidebar
 * Lots of regular expressions
 * Some standard GNU console programs (diff, grep, head, tail, cat, echo, cp, mv...)
@@ -54,8 +53,8 @@ Posts will be:-
 Usage
 ---
 
-Just upload/update your Markdown files in mdfiles/ (via SSH/rsync?), then run rendering/render.sh
-	
+Just upload/update your Markdown files in mdfiles/ (via SSH/rsync?), then run `rendering/render.py`
+
 
 Longer Term:
 ------------
