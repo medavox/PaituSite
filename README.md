@@ -7,7 +7,7 @@ Jekyll's Skinnier Cousin
 	and very little javascript on the client (browser). Everyone gets a fast experience!
 	- it's just text!
 * You write some markdown, and you really do get that nice, no-maintenance blog you always wanted.
-* Written in python and bash, so it's even easy to install and run. *cough* jekyll *cough*
+* Written in python, so it's even easy to install and run. *cough* jekyll *cough*
 
 * Uses [solid software under the hood](#builton), so none of us (bloggers, readers, developers) have to reinvent the wheel.
 
@@ -47,7 +47,7 @@ Posts will be:-
 * PureCSS for the responsive stuff & sidebar
 * Lots of regular expressions
 * Some standard GNU console programs (diff, grep, head, tail, cat, echo, cp, mv...)
-* Scripted using Bash 4 and Python 2
+* Scripted using Python 2
 * That's it!
 
 
