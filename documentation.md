@@ -2,12 +2,12 @@ How To Use Ysgrifen
 =====
 
 
-This document will show you how to use the various features Ysgrifen provides beyond pandoc's Markdown
+This document will show you how to use the various features Ysgrifen provides.
 
 Markdown Flavour
 ------
 
-Firstly, the flavour of Markdown used by Ysgrifen is defined by Pandoc as:-
+Ysgrifen's flavour of Markdown is defined by Pandoc as:-
 
 ```
 markdown
@@ -15,6 +15,9 @@ markdown
 +autolink_bare_uris
 +inline_notes
 ```
+
+This is defined at [line ~177 of render.py](https://github.com/medavox/Ysgrifen/blob/master/rendering/render.py#L177),
+so if you want to add or remove markdown extensions, do it there.
 
 Basic Usage
 ------
@@ -28,13 +31,11 @@ In the project root directory (with the `README.md` in it):
 5. Point your webserver's root directory to `html/`. This is where your generated site lives!
 
 
-This is defined at [line ~177 of render.py](https://github.com/medavox/Ysgrifen/blob/master/rendering/render.py#L177),
-so if you want to add or remove markdown extensions, do it there.
 
 Tags
 ----
 
-Tags are added a document by comma-seperating them on one line, which must begin with `%tag:` or `%tags:`, like so:-
+Tags are added a document by comma-separating them on one line, which must begin with `%tag:` or `%tags:`, like so:-
 
 ```
 
