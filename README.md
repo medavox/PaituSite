@@ -3,8 +3,8 @@ Ysgrifen
 
 *(Pronounced us-GREE-ven)*
 
- A Tiny Static Site Generator With Cool Features
- ----------------------
+A Tiny Static Site Generator With Cool Features
+----------------------
 
 
 * Write your articles in [Markdown](http://commonmark.org/) for a super-fast, super-lightweight blogging platform.
