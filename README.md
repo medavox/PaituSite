@@ -20,16 +20,17 @@ Features
 --------
 
 * Works out a title for each article, to display in the `<title>` tag
-* Uses a custom pandoc html template
 * Article tags
     - uses the special `%tags:` line, containing a comma-seperated list of tags, which can contain spaces
     - generates an HTML page for each tag, listing all the articles with that tag
 * Caches the last-rendered input (in lastinput/), so it knows what's changed since the last run
+	- Only re-generates pages that have changed
 * An `%include` command, which includes the contents of another file (eg source code) in a given page
 	- usage: `%include path/to/file.ext` on its own line. Files must have an extension, because otherwise they'd appear too dodgy for the internet
 * Internal links between articles
 * Syntax highlighting of `%include`d source code files
 * Nicer anchor links support (less html-y, more pandocish) than standard markdown
+* Uses a custom pandoc html template
 
 ###still to come:
 
