@@ -1,7 +1,12 @@
-Ysgrifen -- A Tiny Static Blog Engine With Cool Features
-========================
+Ysgrifen 
+========
 
-(Pronounced us-GREE-ven)
+*(Pronounced us-GREE-ven)*
+
+ A Tiny Static Site Generator With Cool Features
+ ---
+
+
 
 * Write your articles in [Markdown](http://commonmark.org/) for a super-fast, super-lightweight blogging platform.
 	- Executes nothing on the webserver per-request,
