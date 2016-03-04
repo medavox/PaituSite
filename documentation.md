@@ -45,8 +45,9 @@ Tags are added a document by comma-separating them on one line, which must begin
 
 ```
 
-Notice that tags can contain spaces. Spaces before or after commas asre also ignored.
-For obvious reasons, tags can't contains commas, dummy.
+Notice that tags can contain spaces.  
+Spaces before or after commas are also ignored.  
+For obvious reasons, tags can't contains commas.  
 
 
 Including Files
@@ -55,7 +56,7 @@ Including Files
 Ysgrifen allows you to include the contents of another file in your document at render-time,
 as if you had copy-pasted it in there.
 
-Just do `%include <filename.ext>` on its own line; Ysgrifen will look for the file in the `./includes` folder.
+Just do `%include <filename.ext>` on its own line; Ysgrifen will look for the file in `./articles/includes`.
 
 This is useful for including source code in a document; just don't forget to wrap the `%include`
 statement in a Markdown code-fence:
