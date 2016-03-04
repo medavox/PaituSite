@@ -52,6 +52,13 @@ Usage
 
 Just upload/update your Markdown files in mdfiles/ (via SSH/rsync?), then run `rendering/render.py`
 
+For more detail, read DOC.md
+
+Requirements
+----
+* Pandoc 1.12+
+* Python 2.7+
+
 
 Longer Term:
 ------------
