@@ -7,7 +7,7 @@ This document will show you how to use the various features Ysgrifen provides.
 Markdown Flavour
 ------
 
-Ysgrifen's flavour of Markdown is defined by Pandoc as:-
+Ysgrifen uses the following Markdown extensions by Pandoc:-
 
 ```
 markdown
@@ -16,7 +16,7 @@ markdown
 +inline_notes
 ```
 
-This is defined at [line ~177 of render.py](https://github.com/medavox/Ysgrifen/blob/master/rendering/render.py#L177),
+This is defined at (as of writing this) [line 177 of render.py](https://github.com/medavox/Ysgrifen/blob/master/rendering/render.py#L177),
 so if you want to add or remove markdown extensions, do it there.
 
 Basic Usage
