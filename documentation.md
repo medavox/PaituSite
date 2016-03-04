@@ -38,18 +38,18 @@ Tagging Articles
 Tags are added to an article by comma-separating them on one line, which must begin with `%tag:` or `%tags:`, like so:-
 
 ```
-
 <article text blah bah...>
 
 %tags:food,things that are red, el_chupacabra
-
 ```
 
 Convention dictates that the tag list goes at the bottom of the files, but this doesn't have to be so.
 
 Notice that tags can contain spaces.  
 Spaces before or after commas are also ignored.  
-For obvious reasons, tags can't contains commas.  
+For obvious reasons, tags can't contains commas.
+
+For each tag found in all the articles, a page is created listing all the articles with that tag.
 
 
 Including Files
@@ -74,5 +74,18 @@ statement in a Markdown code-fence:
 Linking to Other Articles
 ----
 
+Linking to another article on the blog is pretty easy. Just use the name of the article, without an extension, as the link URL.
+
+So to link to an article in a file named `Flying Fish And Their Medicinal Uses.md`:
+
+```
+[that flying fish article](Flying Fish And Their Medicinal Uses)
+```
+
+This also works for tag pages.
+
 Automatic Title Generation
 -------
+
+Simpler Anchor Syntax
+----
