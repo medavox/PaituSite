@@ -11,6 +11,8 @@ tagDict = dict()
 
 tagPageTitlePrefix = "Pages Tagged '"
 
+markdown_flavour = "markdown+pipe_tables+autolink_bare_uris+inline_notes"
+
 def guaranteeFolder(folderName):
 	if not os.path.isdir(folderName):
 		os.mkdir(folderName, 0755)
@@ -77,8 +79,7 @@ def parseTags(nope):
 			else:
 				print "UNTAGGED: "+f
 				notags.append(f)
-				
-				
+
 	allTags = open('../temp/all_tags.md', 'w')
 	allTags.write("# All Tags\n\ntag | articles\n----|------\n") #tags as table
 	
@@ -96,14 +97,14 @@ def parseTags(nope):
 		#articlesPerTag.append((tag, len(tagDict[tag])))
 		#allTags.write("* ["+tag+"]("+cleanTitle(tag)+".html): "+str(len(tagDict[tag]))+" articles\n")#as bulleted list
 		
-		allTags.write("["+tag+"]("+cleanTitle(tag)+".html) | "+str(len(tagDict[tag]))+"\n")#tags as table
+		allTags.write("["+tag+"](tags/"+cleanTitle(tag)+".html) | "+str(len(tagDict[tag]))+"\n")#tags as table
 		
 		tagPage = open('../temp/'+cleanTitle(tag)+'.md', 'w')
 		tagPage.write(tagPageTitlePrefix+tag+"'\n===\n\n") # write page title
 		padding = "                "[len(tag):]
 		print tag+":"+padding+str(len(tagDict[tag]))+" articles"
 		for page in tagDict[tag]:
-			link = cleanTitle(page)[:-3]+".html"
+			link = "../"+cleanTitle(page)[:-3]+".html"
 			title = getTitle(docsDir+"/"+page)[0]
 			tagPage.write("* ["+title+"]("+link+")\n")
 			
@@ -146,6 +147,7 @@ if filesChanged: #if any files have changed, regenerate the tags
 	parseTags(None)	#regenerate tag pages
 
 guaranteeFolder("../html")
+guaranteeFolder("../html/tags")
 guaranteeFolder("../lastinput")
 
 for x in os.listdir("../temp"):
@@ -163,8 +165,17 @@ for x in os.listdir("../temp"):
 		padding = "                        "[len(x):]
 		print ""+x+":"+padding+"\""+title+"\""
 		
+		
 		with open("../temp/"+x,'r') as fileContents:
 			asLines = fileContents.readlines()
+		
+		tagPageDir		= ""
+		stylePathInfix	= ""
+		isTagPage = asLines[0].startswith(tagPageTitlePrefix)
+		if isTagPage:
+			tagPageDir = "tags/"
+			stylePathInfix = "../"
+
 		
 		if inDocTitle: #if there's an in-document title, delete it from appearing in the document body
 			inputFile = "".join(asLines[2:])
@@ -174,7 +185,7 @@ for x in os.listdir("../temp"):
 		#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
 		inputFile = preProcess(inputFile)
 
-		args='pandoc -M title="'+title+'" -c style/style.css -c style/side-menu.css --template=../rendering/template.html -B ../rendering/sidebar.html -s -r markdown+pipe_tables+autolink_bare_uris+inline_notes -w html -o ../html/'+x[:-2]+'html'
+		args='pandoc -M title="'+title+'" -c '+stylePathInfix+'style/style.css -c '+stylePathInfix+'style/side-menu.css --template=../rendering/template.html -B ../rendering/sidebar.html -s -r '+markdown_flavour+' -w html -o ../html/'+tagPageDir+x[:-2]+'html'
 		#print args
 		yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
 		yum.communicate(inputFile)
@@ -182,7 +193,7 @@ for x in os.listdir("../temp"):
 	elif x.endswith(".list"): # TODO
 		pass
 	
-	if asLines[0].startswith(tagPageTitlePrefix):#this file is a tag page, don't copy it to lastinput
+	if isTagPage:#this file is a tag page, don't copy it to lastinput
 		#print x+" is a tag page"
 		subprocess.call(["rm", "../temp/"+x])
 	else:#move the file we worked on into lastinput/ for comparison with the copy in articles/ during the next run

@@ -20,6 +20,10 @@ such as:
 
 tagDict = dict()
 
+NO_MODE = 0
+TAG_MODE = 1
+AUTHOR_MODE = 2
+
 """
 this needs to be here (instead of in render.py, where it is used more),
 because preprocessor.py can't import functions from render.py;
@@ -46,14 +50,23 @@ the actual regex function for creating lists of tags, which generates the markdo
 """
 def tagLister(matchObj):
 	#print "taglister"
-	rawTags = matchObj.group(1)
+	directive = matchObj.group(1)
+	if "tag" in directive and not "author" in directive:
+		mode = TAG_MODE
+	elif "author" in directive and not "tag" in directive:
+		mode = AUTHOR_MODE
+	#else:
+	#	mode = NO_MODE
+	rawTags = matchObj.group(2)
 	pat = re.compile(' ?, ?') #remove any spaces before or after the separating comma; but keep tag-internal spaces
 	cleanedCommas = pat.sub( ',', rawTags)
 	
-	#tagfoot = "<p>Tagged as: " # html-output version
-	tagfoot = "\n\nTagged as: " # markdown-output
+	if mode == TAG_MODE:
+		tagfoot = "\n\nTagged as: " # markdown-output
+	elif mode == AUTHOR_MODE:
+		tagfoot = "\nBy "
 	for tag in cleanedCommas.split(','):
-		tagfoot += "["+tag+"]("+cleanTitle(tag) + ".html) " # markdown
+		tagfoot += "["+tag+"]("+directive+"s/"+cleanTitle(tag) + ".html) " # markdown
 	return tagfoot+"\n"
 
 def internalLinker(matchObj):
@@ -64,9 +77,9 @@ def internalLinker(matchObj):
 	linkName = matchObj.group(2).lower().replace(' ', '_')
 	return out +linkName+".html)"#+"LINKA!GROVE!"
 	
-
+#[(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", 				tagLister),			#handle tag list pre-author addition
 conversionRules = \
-[(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", 				tagLister),			#handle tag list
+[(r"^%(tag|author)s?: ?([^\n,]+(,[^\n,]+)*) *$", 		tagLister),			#handle tag list
  (r"(\[[^\]\n]+\]\()([\w _-]+)\)", 						internalLinker), 	#handle internal links
  (r"^<a:([\w-]+)>",										r'<a name="\1"></a>'),#expand shortened anchor syntax to full html # TODO
  (r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#handle includes
