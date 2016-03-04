@@ -7,7 +7,7 @@ A Tiny Static Site Generator With Cool Features
 ----------------------
 
 
-* Write your articles in [Markdown](http://commonmark.org/) for a super-fast, super-lightweight blogging platform.
+* Write your articles in [Markdown](http://commonmark.org/) with this super-fast, super-lightweight blogging platform.
 	- Executes nothing on the webserver per-request,
 	and a tiny amount of javascript on the client (browser) for the sidebar. Everyone gets a fast experience!
 	- Only executes anything when you want to update your site; run `./rendering/render.py`
