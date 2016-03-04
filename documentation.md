@@ -32,10 +32,10 @@ In the project root directory (with the `README.md` in it):
 
 
 
-Tags
+Tagging Articles
 ----
 
-Tags are added a document by comma-separating them on one line, which must begin with `%tag:` or `%tags:`, like so:-
+Tags are added to an article by comma-separating them on one line, which must begin with `%tag:` or `%tags:`, like so:-
 
 ```
 
@@ -44,6 +44,8 @@ Tags are added a document by comma-separating them on one line, which must begin
 %tags:food,things that are red, el_chupacabra
 
 ```
+
+Convention dictates that the tag list goes at the bottom of the files, but this doesn't have to be so.
 
 Notice that tags can contain spaces.  
 Spaces before or after commas are also ignored.  
@@ -70,3 +72,7 @@ statement in a Markdown code-fence:
 </code>
 
 Linking to Other Articles
+----
+
+Automatic Title Generation
+-------
