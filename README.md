@@ -11,10 +11,9 @@ A Tiny Static Site Generator With Cool Features
 	- Executes nothing on the webserver per-request,
 	and a tiny amount of javascript on the client (browser) for the sidebar. Everyone gets a fast experience!
 	- Only executes anything when you want to update your site; run `./rendering/render.py`
-* You really do get that nice, no-maintenance blog you always wanted.
 * Written in Python, so it's even easy to install and run. *cough* jekyll *cough*
-
 * Uses [solid software under the hood](#builton), so none of us (bloggers, readers, developers) have to reinvent the wheel.
+* You really do get that nice, no-maintenance blog you always wanted.
 
 Features
 --------
