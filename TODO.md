@@ -11,6 +11,8 @@ TODO
 	- also insert language next to markdown code fence, if detectable
 * Multiple Author support?
 * put generated tag pages in their own directory?
+* generate an "All Articles" page, with entries sorted alphabetically
+* Create a `%contents` or `%toc` tag, which tells Ysgrifen to render a Table of Contents in that article
 
 
 DONE

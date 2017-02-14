@@ -4,6 +4,7 @@ from preprocessing import preProcess, cleanTitle
 from operator import itemgetter
 
 docsDir = "../articles"
+outputDir = "../medavox.github.io"
 
 filesChanged = False
 titlesDict = dict()
@@ -146,8 +147,8 @@ print "fileschanged:"+str(filesChanged)
 if filesChanged: #if any files have changed, regenerate the tags
 	parseTags(None)	#regenerate tag pages
 
-guaranteeFolder("../html")
-guaranteeFolder("../html/tags")
+guaranteeFolder(outputDir)
+guaranteeFolder(outputDir+"/tags")
 guaranteeFolder("../lastinput")
 
 for x in os.listdir("../temp"):
@@ -185,7 +186,7 @@ for x in os.listdir("../temp"):
 		#HERE is where we do the final pre-processing before passing the resulting mdfile to pandoc		
 		inputFile = preProcess(inputFile)
 
-		args='pandoc -M title="'+title+'" -c '+stylePathInfix+'style/style.css -c '+stylePathInfix+'style/side-menu.css --template=../rendering/template.html -B ../rendering/sidebar.html -s -r '+markdown_flavour+' -w html -o ../html/'+tagPageDir+x[:-2]+'html'
+		args='pandoc -M title="'+title+'" -c '+stylePathInfix+'style/style.css -c '+stylePathInfix+'style/side-menu.css --template=../rendering/template.html -B ../rendering/sidebar.html -s -r '+markdown_flavour+' -w html -o '+outputDir+'/'+tagPageDir+x[:-2]+'html'
 		#print args
 		yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
 		yum.communicate(inputFile)
@@ -201,4 +202,4 @@ for x in os.listdir("../temp"):
 		subprocess.call(["mv", "../temp/"+x, "../lastinput/"+x])
 	
 	#copy the stylesheets into somewhere nginx can reach them
-	subprocess.call(["cp", "-R", "../style", "../html/"])
+	subprocess.call(["cp", "-R", "../style", outputDir+"/"])

@@ -44,7 +44,7 @@ def includer(matchObj):
 	return openedFile.read()
 
 """
-replaces the %tag(s): Paitu command with markdown of links to the tag pages.
+replaces the '%tag(s):' Paitu command with markdown of links to the tag pages.
   html string of the tags for a given article, as links to the tag pages.
 the actual regex function for creating lists of tags, which generates the markdown
 """
@@ -69,6 +69,9 @@ def tagLister(matchObj):
 		tagfoot += "["+tag+"]("+directive+"s/"+cleanTitle(tag) + ".html) " # markdown
 	return tagfoot+"\n"
 
+"""
+Converts Ysgrifen's wiki-style internal links into functioning HTML links
+"""
 def internalLinker(matchObj):
 	#print matchObj.group(1) #[case-insensitive internal link](
 	#print matchObj.group(2) #<the path before the filename in the link 'url'>
@@ -77,12 +80,12 @@ def internalLinker(matchObj):
 	linkName = matchObj.group(2).lower().replace(' ', '_')
 	return out +linkName+".html)"#+"LINKA!GROVE!"
 	
-#[(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", 				tagLister),			#handle tag list pre-author addition
+#[(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", 				tagLister),			#handle tag list -- pre-author addition
 conversionRules = \
-[(r"^%(tag|author)s?: ?([^\n,]+(,[^\n,]+)*) *$", 		tagLister),			#handle tag list
- (r"(\[[^\]\n]+\]\()([\w _-]+)\)", 						internalLinker), 	#handle internal links
- (r"^<a:([\w-]+)>",										r'<a name="\1"></a>'),#expand shortened anchor syntax to full html # TODO
- (r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#handle includes
+[(r"^%(tag|author)s?: ?([^\n,]+(,[^\n,]+)*) *$", 		tagLister),			#processes tag lists
+ (r"(\[[^\]\n]+\]\()([\w _-]+)\)", 						internalLinker), 	#handles wiki-style internal links
+ (r"^<a:([\w-]+)>",										r'<a name="\1"></a>'),#expands shortened anchor syntax to full html # TODO
+ (r"^%include (([^/]+/)*/?[^/]*\.[a-zA-Z0-9]{1,10})$",	includer)]			#processes %include directives
 #(r"^```([a-zA-Z0-9.#+-]+)$.+^```$",					syntaxHylyter)]		#syntax highlighter OBSOLETE?
 
 #pandoc has its own syntax highlighter (kate?), but it doesn't recognise AHK, or provide line numbering
