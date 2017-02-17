@@ -10,13 +10,13 @@ TODO
 * In rendered page, put labelled box around `%include`d code, with a download link (the filename)
 	- also insert language next to markdown code fence, if detectable
 * Multiple Author support?
-* put generated tag pages in their own directory?
 * generate an "All Articles" page, with entries sorted alphabetically
 * Create a `%contents` or `%toc` tag, which tells Ysgrifen to render a Table of Contents in that article
 
 
 DONE
 ----
+* put generated tag pages in their own directory
 * The tags (if any) a page has are added as a list of links to the bottom of that page
 * Clickable list of articles with a given tag
 * special `%include` directive, to include the contents of a file inside the rendered copy of another
