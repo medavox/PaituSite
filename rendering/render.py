@@ -17,6 +17,7 @@ markdown_flavour = "markdown+pipe_tables+autolink_bare_uris+inline_notes"
 filesChanged = False
 titlesDict = dict()
 tagDict = dict()
+notags = []
 
 
 #function definitions
@@ -34,7 +35,7 @@ def getTitle(filename):
 	openMd = open(filename, 'r')
 	#todo:guard against blank leading lines
 	contents = openMd.readline() + openMd.readline() #get first two lines as a str; basically head -n 2
-	
+
 	pat = re.compile('^(.+)\n===+$', re.MULTILINE)
 	suche = pat.search(contents) #try using the line above '===', if it exists
 	if suche == None: # if that fails, try using the line beginning with '#'
@@ -61,46 +62,47 @@ def getTags(filename):
 	openfile.close()
 	pat = re.compile(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", re.M)
 	retlist = []
-	for mo in pat.finditer(contents):
+	for mo in pat.finditer(contents):#match obj;
+		#we're only expecting 1 match per file, but just in case
 		rawTags = mo.group(1)
-		
+
 		#remove any spaces before or after the separating comma; but keep tag-internal spaces
-		pat = re.compile(' ?, ?') 
+		pat = re.compile(' ?, ?')
 		cleanedCommas = pat.sub( ',', rawTags)
-		
+
 		retlist = retlist + cleanedCommas.split(',')
 		#print filename+":"+str(retlist)
 	return retlist
 
+def addTagsToDict(f):
+	tagList = getTags(inputDir+"/"+f)
+	#print "tags found:"+str(len(tagList))
+	#print f+":"+str(type(tagList))
+	if len(tagList) > 0:
+		for tag in tagList:
+			if tag in tagDict:
+				tagDict[tag].append(f)#add this file's name to listvalue of this tagkey
+			else: #initialise this tagkey with a new list containing this filename
+				tagDict[tag] = [f]
+	else:#if there are no tags detected in the file, add it to a list
+		print "UNTAGGED: "+f
+		notags.append(f)
+
 #generate navbar links to tag pages, as an add-in snippet
 #generate the markdown for tag pages
-def parseTags(nope):
-	notags = []
-	#from %tags, create a global one-to-many associative array (dictionary) of tags to pages
-	for f in os.listdir(inputDir):
-		if f.endswith('.md'):
-			tagList = getTags(inputDir+"/"+f)
-			#print "tags found:"+str(len(tagList))
-			#print f+":"+str(type(tagList))
-			if len(tagList) > 0:
-				for tag in tagList:
-					if tag in tagDict:
-						tagDict[tag].append(f)#add this file's name to listvalue of this tagkey
-					else: #initialise this tagkey with a new list containing this filename
-						tagDict[tag] = [f]
-			else:
-				print "UNTAGGED: "+f
-				notags.append(f)
+#from %tag lines in files, create a global map of [tags]:1 to [files with that tag]:n
 
+def convertTagDictToTagPages():
 	allTags = open('../temp/all_tags.md', 'w')
 	allTags.write("# All Tags\n\ntag | articles\n----|------\n") #tags as table
-	
+
 	untagged = open('../temp/untagged_articles.md', 'w')
 	untagged.write("# Untagged Articles\n\n")
-	
+
 	for page in notags:
 		untagged.write("* ["+getTitle("../articles/"+page)[0]+"]("+cleanTitle(page)[:-2]+"html)\n")
-	
+	untagged.close()
+
 	#create a page for every tag found in all the articles.
 	#on that page, add a link to every article with that tag
 	for tag in tagDict.keys():
@@ -108,9 +110,9 @@ def parseTags(nope):
 		#sorted(tagDict, key=itemgetter(len(tagDict[tag])), reverse=True)
 		#articlesPerTag.append((tag, len(tagDict[tag])))
 		#allTags.write("* ["+tag+"]("+cleanTitle(tag)+".html): "+str(len(tagDict[tag]))+" articles\n")#as bulleted list
-		
+
 		allTags.write("["+tag+"](tags/"+cleanTitle(tag)+".html) | "+str(len(tagDict[tag]))+"\n")#tags as table
-		
+
 		tagPage = open(tempDir+'/'+cleanTitle(tag)+'.md', 'w')
 		tagPage.write(tagPageTitlePrefix+tag+"'\n===\n\n") # write page title
 		padding = "                "[len(tag):]
@@ -119,7 +121,7 @@ def parseTags(nope):
 			link = "../"+cleanTitle(page)[:-3]+".html"
 			title = getTitle(inputDir+"/"+page)[0]
 			tagPage.write("* ["+title+"]("+link+")\n")
-			
+
 			#print "\t\""+title+"\" at "+link
 		tagPage.close()
 	allTags.close()
@@ -130,7 +132,7 @@ for liveFile in os.listdir(inputDir):
 	if liveFile.endswith(".md") or liveFile.endswith(".list"):
 		thisFileChanged = False
 		cleanedName = cleanTitle(liveFile) #replace spaces with underscores in filenames; make the name lowercase as well
-		
+
 		exists = os.path.exists("../lastinput/"+cleanedName) #and os.path.isfile("../lastinput/"+cleanedName)
 		if exists:
 			dift = subprocess.call(["diff", "-q", inputDir+"/"+liveFile, "../lastinput/"+cleanedName])
@@ -140,13 +142,16 @@ for liveFile in os.listdir(inputDir):
 		else: # if there's no copy of this file in ../lastinput, then it has changed by definition
 			filesChanged = True
 			thisFileChanged = True
-		
+
 		if thisFileChanged: # if working copy in ../mdfiles/ differs from last rendered version in ../lastinput/
 			#print ""+liveFile+" HAS CHANGED!"
 			guaranteeFolder("../temp")
-			
+
 			#print "copying "+liveFile+" to ../temp/"+cleanedName
 			subprocess.call(["cp", inputDir+"/"+liveFile, "../temp/"+cleanedName]) # copy changed files to ../temp/ for rendering, in the next loop
+
+			#run the tag thing
+			addTagsToDict(liveFile)
 
 			#add derived title to a bash associative array for use by pandoc later
 			tytl = getTitle(inputDir+"/"+liveFile)
@@ -155,9 +160,8 @@ for liveFile in os.listdir(inputDir):
 
 print "any input file changed:"+str(filesChanged)
 
-#todo: need to regenerate tags into bash dictionary once tagpage mdfiles have been generated
 if filesChanged: #if any files have changed, regenerate the tags
-	parseTags(None)	#regenerate tag pages
+	convertTagDictToTagPages()	#regenerate tag pages
 
 guaranteeFolder(outputDir)
 guaranteeFolder(outputDir+"/"+tagPagesDir)
@@ -174,14 +178,14 @@ for x in os.listdir("../temp"):
 			inDocTitle = titleTuple[1]
 		#print "rendering "+x+" to "+x[:-2]+"html"
 		#print "titlesDict entry:"+str(titlesDict[x])
-	
+
 		padding = "                        "[len(x):]
 		print ""+x+":"+padding+"\""+title+"\""
-		
-		
+
+
 		with open("../temp/"+x,'r') as fileContents:
 			asLines = fileContents.readlines()
-		
+
 		tagPageDir		= ""
 		stylePathInfix	= ""
 		isTagPage = asLines[0].startswith(tagPageTitlePrefix)
@@ -190,13 +194,13 @@ for x in os.listdir("../temp"):
 			tagPageDir = tagPagesDir+"/"
 			stylePathInfix = "../"
 
-		
+
 		if inDocTitle: #if there's an in-document title, delete it from appearing in the document body
 			inputFile = "".join(asLines[2:])
 		else:
 			inputFile = "".join(asLines)
-		
-		#do final pre-processing (see preprocessing.py) before passing the resulting mdfile to pandoc		
+
+		#do final pre-processing (see preprocessing.py) before passing the resulting mdfile to pandoc
 		inputFile = preProcess(inputFile)
 
 		args='pandoc -s' #base, and '-s' flag -- creates a standalone doc
@@ -210,14 +214,14 @@ for x in os.listdir("../temp"):
 
 		yum=subprocess.Popen(args, shell=True, stdin=subprocess.PIPE)
 		yum.communicate(inputFile)
-	
+
 	elif x.endswith(".list"): # TODO
 		pass
-	
+
 	if isTagPage:#this file is a tag page, don't copy it to lastinput
 		subprocess.call(["rm", "../temp/"+x])
 	else:#move the file we worked on into lastinput/ for comparison with the copy in articles/ during the next run
 		subprocess.call(["mv", "../temp/"+x, "../lastinput/"+x])
-	
+
 	#copy the stylesheets into somewhere nginx can reach them
 	subprocess.call(["cp", "-R", "../style", outputDir+"/"])
