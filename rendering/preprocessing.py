@@ -60,7 +60,7 @@ def tagLister(matchObj):
 	rawTags = matchObj.group(2)
 	pat = re.compile(' ?, ?') #remove any spaces before or after the separating comma; but keep tag-internal spaces
 	cleanedCommas = pat.sub( ',', rawTags)
-	
+
 	if mode == TAG_MODE:
 		tagfoot = "\n\nTagged as: " # markdown-output
 	elif mode == AUTHOR_MODE:
@@ -79,7 +79,7 @@ def internalLinker(matchObj):
 	out = matchObj.group(1)
 	linkName = matchObj.group(2).lower().replace(' ', '_')
 	return out +linkName+".html)"#+"LINKA!GROVE!"
-	
+
 #[(r"^%tags?: ?([^\n,]+(,[^\n,]+)*) *$", 				tagLister),			#handle tag list -- pre-author addition
 conversionRules = \
 [(r"^%(tag|author)s?: ?([^\n,]+(,[^\n,]+)*) *$", 		tagLister),			#processes tag lists
@@ -95,12 +95,8 @@ detects markdown links to other local articles, and sticks a .html on the end,
 so rendered articles can link to other rendered articles
 """
 def preProcess(inFile):
-	#outFile = sys.argv[1]
 	outFile = inFile
-	# make sure that handleIncludes is executed before syntaxHylyter,
-	# so that syntaxHylyter has something to work on for included files
-	for rule in conversionRules: #( handleTagList, handleIncludes, syntaxHylyter):
+	for rule in conversionRules:
 		pat = re.compile(rule[0], re.MULTILINE)
 		outFile = pat.sub(rule[1], outFile)
-		#outFile = converter(outFile)
 	return outFile

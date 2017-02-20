@@ -19,7 +19,6 @@ titlesDict = dict()
 tagDict = dict()
 notags = []
 
-
 #function definitions
 #--------------------
 def guaranteeFolder(folderName):
@@ -29,7 +28,7 @@ def guaranteeFolder(folderName):
 """
 returns a derived title for the given markdown file.
 The title is worked out from its markdown title or, failing that, its file name.
-works in both python and bash.
+works in both python and bash.;l
 """
 def getTitle(filename):
 	openMd = open(filename, 'r')
@@ -96,6 +95,7 @@ def convertTagDictToTagPages():
 	allTags = open('../temp/all_tags.md', 'w')
 	allTags.write("# All Tags\n\ntag | articles\n----|------\n") #tags as table
 
+	#create page of untagged articles
 	untagged = open('../temp/untagged_articles.md', 'w')
 	untagged.write("# Untagged Articles\n\n")
 
@@ -106,7 +106,7 @@ def convertTagDictToTagPages():
 	#create a page for every tag found in all the articles.
 	#on that page, add a link to every article with that tag
 	for tag in tagDict.keys():
-		#consider sorting tags before printing
+		#todo: sort tags alphabetically before printing
 		#sorted(tagDict, key=itemgetter(len(tagDict[tag])), reverse=True)
 		#articlesPerTag.append((tag, len(tagDict[tag])))
 		#allTags.write("* ["+tag+"]("+cleanTitle(tag)+".html): "+str(len(tagDict[tag]))+" articles\n")#as bulleted list
@@ -121,7 +121,6 @@ def convertTagDictToTagPages():
 			link = "../"+cleanTitle(page)[:-3]+".html"
 			title = getTitle(inputDir+"/"+page)[0]
 			tagPage.write("* ["+title+"]("+link+")\n")
-
 			#print "\t\""+title+"\" at "+link
 		tagPage.close()
 	allTags.close()
@@ -133,8 +132,7 @@ for liveFile in os.listdir(inputDir):
 		thisFileChanged = False
 		cleanedName = cleanTitle(liveFile) #replace spaces with underscores in filenames; make the name lowercase as well
 
-		exists = os.path.exists("../lastinput/"+cleanedName) #and os.path.isfile("../lastinput/"+cleanedName)
-		if exists:
+		if os.path.exists("../lastinput/"+cleanedName):
 			dift = subprocess.call(["diff", "-q", inputDir+"/"+liveFile, "../lastinput/"+cleanedName])
 			if dift != 0:
 				filesChanged = True
@@ -144,13 +142,11 @@ for liveFile in os.listdir(inputDir):
 			thisFileChanged = True
 
 		if thisFileChanged: # if working copy in ../mdfiles/ differs from last rendered version in ../lastinput/
-			#print ""+liveFile+" HAS CHANGED!"
 			guaranteeFolder("../temp")
+			# copy changed files to ../temp/ for rendering, in the next loop
+			subprocess.call(["cp", inputDir+"/"+liveFile, "../temp/"+cleanedName])
 
-			#print "copying "+liveFile+" to ../temp/"+cleanedName
-			subprocess.call(["cp", inputDir+"/"+liveFile, "../temp/"+cleanedName]) # copy changed files to ../temp/ for rendering, in the next loop
-
-			#run the tag thing
+			#only regenerate tags from pages that have changed
 			addTagsToDict(liveFile)
 
 			#add derived title to a bash associative array for use by pandoc later
@@ -161,7 +157,7 @@ for liveFile in os.listdir(inputDir):
 print "any input file changed:"+str(filesChanged)
 
 if filesChanged: #if any files have changed, regenerate the tags
-	convertTagDictToTagPages()	#regenerate tag pages
+	convertTagDictToTagPages()
 
 guaranteeFolder(outputDir)
 guaranteeFolder(outputDir+"/"+tagPagesDir)
@@ -176,12 +172,9 @@ for x in os.listdir("../temp"):
 			titleTuple = getTitle("../temp/"+x)
 			title = titleTuple[0]
 			inDocTitle = titleTuple[1]
-		#print "rendering "+x+" to "+x[:-2]+"html"
-		#print "titlesDict entry:"+str(titlesDict[x])
 
 		padding = "                        "[len(x):]
 		print ""+x+":"+padding+"\""+title+"\""
-
 
 		with open("../temp/"+x,'r') as fileContents:
 			asLines = fileContents.readlines()
@@ -194,7 +187,6 @@ for x in os.listdir("../temp"):
 			tagPageDir = tagPagesDir+"/"
 			stylePathInfix = "../"
 
-
 		if inDocTitle: #if there's an in-document title, delete it from appearing in the document body
 			inputFile = "".join(asLines[2:])
 		else:
@@ -205,8 +197,8 @@ for x in os.listdir("../temp"):
 
 		args='pandoc -s' #base, and '-s' flag -- creates a standalone doc
 		args=args+' -M title="'+title+'"' #title
-		args=args+' -c '+stylePathInfix+'style/style.css ' #stylesheet
-		args=args+'-c '+stylePathInfix+'style/side-menu.css' #sidemenu style
+		args=args+' -c '+stylePathInfix+'style/style.css' #stylesheet
+		args=args+' -c '+stylePathInfix+'style/side-menu.css' #sidemenu style
 		args=args+' --template=../rendering/template.html' #use template
 		args=args+' -B ../rendering/sidebar.html' #sidebar
 		args=args+' -r '+markdown_flavour+' -w html' #in-out formats
