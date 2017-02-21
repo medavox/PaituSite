@@ -1,13 +1,14 @@
 #!/usr/bin/python
-import re,sys,os,os.path,subprocess,tempfile,time
+import re,sys,os,os.path,subprocess,tempfile,time,datetime
 from preprocessing import preProcess, cleanTitle
 from operator import itemgetter
 
 #input variables/config
 #----------------------
-inputDir = "../articles"
-tempDir = "../temp"
-outputDir = "../medavox.github.io"
+inputDir = "../articles/"
+tempDir = "../temp/"
+lastInput="../lastinput/"
+outputDir = "../medavox.github.io/"
 tagPagesDir = "tags"
 tagPageTitlePrefix = "Pages Tagged '"
 markdown_flavour = "markdown+pipe_tables+autolink_bare_uris+inline_notes"
@@ -74,7 +75,7 @@ def getTags(filename):
 	return retlist
 
 def addTagsToDict(f):
-	tagList = getTags(inputDir+"/"+f)
+	tagList = getTags(inputDir+f)
 	#print "tags found:"+str(len(tagList))
 	#print f+":"+str(type(tagList))
 	if len(tagList) > 0:
@@ -92,11 +93,11 @@ def addTagsToDict(f):
 #from %tag lines in files, create a global map of [tags]:1 to [files with that tag]:n
 
 def convertTagDictToTagPages():
-	allTags = open('../temp/all_tags.md', 'w')
+	allTags = open(tempDir+'all_tags.md', 'w')
 	allTags.write("# All Tags\n\ntag | articles\n----|------\n") #tags as table
 
 	#create page of untagged articles
-	untagged = open('../temp/untagged_articles.md', 'w')
+	untagged = open(tempDir+'untagged_articles.md', 'w')
 	untagged.write("# Untagged Articles\n\n")
 
 	for page in notags:
@@ -119,11 +120,16 @@ def convertTagDictToTagPages():
 		print tag+":"+padding+str(len(tagDict[tag]))+" articles"
 		for page in tagDict[tag]:
 			link = "../"+cleanTitle(page)[:-3]+".html"
-			title = getTitle(inputDir+"/"+page)[0]
+			title = getTitle(inputDir+page)[0]
 			tagPage.write("* ["+title+"]("+link+")\n")
 			#print "\t\""+title+"\" at "+link
 		tagPage.close()
 	allTags.close()
+
+def addModifiedTime(filePath, fileContents):
+	modTime = os.path.getmtime(filePath)
+	niceDate = datetime.datetime.fromtimestamp(modTime).strftime('%Y-%m-%d %H:%M:%S')
+	return fileContents + "\n\n (last modified on "+niceDate+")"
 
 #actual code execution begins
 #----------------------------
@@ -132,8 +138,8 @@ for liveFile in os.listdir(inputDir):
 		thisFileChanged = False
 		cleanedName = cleanTitle(liveFile) #replace spaces with underscores in filenames; make the name lowercase as well
 
-		if os.path.exists("../lastinput/"+cleanedName):
-			dift = subprocess.call(["diff", "-q", inputDir+"/"+liveFile, "../lastinput/"+cleanedName])
+		if os.path.exists(lastInput+cleanedName):
+			dift = subprocess.call(["diff", "-q", inputDir+liveFile, lastInput+cleanedName])
 			if dift != 0:
 				filesChanged = True
 				thisFileChanged = True
@@ -142,15 +148,15 @@ for liveFile in os.listdir(inputDir):
 			thisFileChanged = True
 
 		if thisFileChanged: # if working copy in ../mdfiles/ differs from last rendered version in ../lastinput/
-			guaranteeFolder("../temp")
+			guaranteeFolder(tempDir)
 			# copy changed files to ../temp/ for rendering, in the next loop
-			subprocess.call(["cp", inputDir+"/"+liveFile, "../temp/"+cleanedName])
+			subprocess.call(["cp", inputDir+liveFile, tempDir+cleanedName])
 
 			#only regenerate tags from pages that have changed
 			addTagsToDict(liveFile)
 
 			#add derived title to a bash associative array for use by pandoc later
-			tytl = getTitle(inputDir+"/"+liveFile)
+			tytl = getTitle(inputDir+liveFile)
 			titlesDict[cleanedName] = tytl
 #fileChanged=True	#debug statement
 
@@ -160,23 +166,23 @@ if filesChanged: #if any files have changed, regenerate the tags
 	convertTagDictToTagPages()
 
 guaranteeFolder(outputDir)
-guaranteeFolder(outputDir+"/"+tagPagesDir)
-guaranteeFolder("../lastinput")
+guaranteeFolder(outputDir+tagPagesDir)
+guaranteeFolder(lastInput)
 
-for x in os.listdir("../temp"):
+for x in os.listdir(tempDir):
 	if x.endswith(".md"):
 		if x in titlesDict:
 			inDocTitle = titlesDict[x][1]
 			title = titlesDict[x][0]
 		else:
-			titleTuple = getTitle("../temp/"+x)
+			titleTuple = getTitle(tempDir+x)
 			title = titleTuple[0]
 			inDocTitle = titleTuple[1]
 
 		padding = "                        "[len(x):]
 		print ""+x+":"+padding+"\""+title+"\""
 
-		with open("../temp/"+x,'r') as fileContents:
+		with open(tempDir+x,'r') as fileContents:
 			asLines = fileContents.readlines()
 
 		tagPageDir		= ""
@@ -195,12 +201,28 @@ for x in os.listdir("../temp"):
 		#do final pre-processing (see preprocessing.py) before passing the resulting mdfile to pandoc
 		inputFile = preProcess(inputFile)
 
+		#check for %contents or %toc tag, instructing us to add a table of contents
+		tocPattern = re.compile(r"^%(contents|toc)", re.MULTILINE)
+		tableOfContents = False
+		if re.search(tocPattern, inputFile) != None:
+			#file contains at least one instance of %toc or %contents
+			tableOfContents = True
+			inputFile = re.sub(tocPattern, "", inputFile)#remove the tag
+
+		#add last modification time to article
+		inputFile = addModifiedTime(tempDir+x, inputFile)
+
+		#-----------------------------------------------------------------------
+		#document pre-processing over, time to send the results to pandoc
+
 		args='pandoc -s' #base, and '-s' flag -- creates a standalone doc
 		args=args+' -M title="'+title+'"' #title
 		args=args+' -c '+stylePathInfix+'style/style.css' #stylesheet
 		args=args+' -c '+stylePathInfix+'style/side-menu.css' #sidemenu style
 		args=args+' --template=../rendering/template.html' #use template
 		args=args+' -B ../rendering/sidebar.html' #sidebar
+		if tableOfContents:
+			args=args+' --table-of-contents'#optional table of contents
 		args=args+' -r '+markdown_flavour+' -w html' #in-out formats
 		args=args+' -o '+outputDir+'/'+tagPageDir+x[:-2]+'html' #output file
 
@@ -211,9 +233,9 @@ for x in os.listdir("../temp"):
 		pass
 
 	if isTagPage:#this file is a tag page, don't copy it to lastinput
-		subprocess.call(["rm", "../temp/"+x])
+		subprocess.call(["rm", tempDir+x])
 	else:#move the file we worked on into lastinput/ for comparison with the copy in articles/ during the next run
-		subprocess.call(["mv", "../temp/"+x, "../lastinput/"+x])
+		subprocess.call(["mv", tempDir+x, lastInput+x])
 
 	#copy the stylesheets into somewhere nginx can reach them
-	subprocess.call(["cp", "-R", "../style", outputDir+"/"])
+	subprocess.call(["cp", "-R", "../style", outputDir])
