@@ -22,6 +22,10 @@ notags = []
 
 #function definitions
 #--------------------
+
+"""
+ensure the folder specified by folderName exists. If it doesn't, create it.
+"""
 def guaranteeFolder(folderName):
 	if not os.path.isdir(folderName):
 		os.mkdir(folderName, 0755)
@@ -53,8 +57,7 @@ def getTitle(filename):
 		return (suche.group(1), True)
 
 """
-Creates a page for each tag, with links to each article with that tag.
-Tags are found by checking all articles
+Returns the list of tags in the file at the specified path.
 """
 def getTags(filename):
 	openfile = open(filename, 'r')
@@ -74,6 +77,10 @@ def getTags(filename):
 		#print filename+":"+str(retlist)
 	return retlist
 
+"""
+adds each tag in the file specified by pathname f as a key to the global dictionary tagDict,
+with the filename f as the value.
+"""
 def addTagsToDict(f):
 	tagList = getTags(inputDir+f)
 	#print "tags found:"+str(len(tagList))
@@ -91,7 +98,12 @@ def addTagsToDict(f):
 #generate navbar links to tag pages, as an add-in snippet
 #generate the markdown for tag pages
 #from %tag lines in files, create a global map of [tags]:1 to [files with that tag]:n
-
+"""
+for every tag key in the global dictionary tagDict,
+1) adds an entry to the generated markdown file 'all_tags.md';
+2) generates a markdown file 'tag_<tag>.md' containing a list of articles with that tag
+Also writes out the list of untagged articles to generated markdown file 'untagged_articles.md'
+"""
 def convertTagDictToTagPages():
 	allTags = open(tempDir+'all_tags.md', 'w')
 	allTags.write("# All Tags\n\ntag | articles\n----|------\n") #tags as table
@@ -106,7 +118,7 @@ def convertTagDictToTagPages():
 
 	#create a page for every tag found in all the articles.
 	#on that page, add a link to every article with that tag
-	for tag in tagDict.keys():
+	for tag in sorted(tagDict.keys()):
 		#todo: sort tags alphabetically before printing
 		#sorted(tagDict, key=itemgetter(len(tagDict[tag])), reverse=True)
 		#articlesPerTag.append((tag, len(tagDict[tag])))
@@ -126,7 +138,12 @@ def convertTagDictToTagPages():
 		tagPage.close()
 	allTags.close()
 
+"""
+adds the modified time of the file specified by filePath,
+to the string specified by fileContents.
+"""
 def addModifiedTime(filePath, fileContents):
+	#todo: add git log -1 --format="%ad" -- /path/to/file
 	modTime = os.path.getmtime(filePath)
 	niceDate = datetime.datetime.fromtimestamp(modTime).strftime('%Y-%m-%d %H:%M:%S')
 	return fileContents + "\n\n (last modified on "+niceDate+")"

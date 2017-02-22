@@ -1,6 +1,6 @@
 TODO
 ----
-* generate a 'last modified' line in the rendered articles, gathered from the file's metadata
+
 * files in lastinput/ which don't exist in articles/ aren't deleted
 * add warning when tagpage overwrites existing file (article?)
 * create new `.list` file format, where each line is a bullet point
@@ -11,7 +11,7 @@ TODO
 	- also insert language next to markdown code fence, if detectable
 * Multiple Author support?
 * generate an "All Articles" page, with entries sorted alphabetically
-* Create a `%contents` or `%toc` tag, which tells Ysgrifen to render a Table of Contents in that article
+
 
 
 DONE
@@ -22,3 +22,5 @@ DONE
 * special `%include` directive, to include the contents of a file inside the rendered copy of another
 * Reimplement generation of a page listing all tags, and also untagged pages
 * generate all_tags page and untagged_articles
+* Create a `%contents` or `%toc` tag, which tells Ysgrifen to render a Table of Contents in that article
+* generate a 'last modified' line in the rendered articles, gathered from the file's metadata
